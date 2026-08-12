@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faixa Etária — Perfil etário dos alunos ativos | Uni LS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#EDF0F5; --surface:#FFFFFF; --surface-2:#F7F9FC; --ink:#1A2233; --ink-2:#525E72;
+  --muted:#8794A7; --hairline:#E3E8EF; --grid:#EBEEF3; --accent:#C8102E; --accent-dk:#9C0C24;
+  --shadow:0 1px 2px rgba(20,30,50,.04),0 8px 24px rgba(20,30,50,.06);
+  --shadow-lg:0 2px 6px rgba(20,30,50,.06),0 18px 48px rgba(20,30,50,.10);
+  --radius:16px; --radius-sm:11px;
+  --f1:#3A5BA0; --f2:#3E8CA8; --f3:#3FA795; --f4:#7FB069; --f5:#E0A458; --f6:#D9793E; --f7:#B4462F;
+  --g1:#5B7FD4; --g2:#2FA4A0; --g3:#7FB069; --g4:#E0A458; --g5:#C15A3A;
+  --tooltip-bg:#121826; --tooltip-ink:#F3F6FB;
+}
+[data-theme="dark"]{
+  --page:#0E141E; --surface:#161E2B; --surface-2:#1B2534; --ink:#EAF0F8; --ink-2:#A9B6C9;
+  --muted:#7C8AA0; --hairline:#26313F; --grid:#232E3D; --accent:#F04A5F; --accent-dk:#C8102E;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.35),0 22px 60px rgba(0,0,0,.5);
+  --tooltip-bg:#0A0F18; --tooltip-ink:#EAF0F8;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--page);color:var(--ink);font-family:"Inter",system-ui,-apple-system,sans-serif;
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;transition:background .35s ease,color .35s ease}
+h1,h2,h3,.num,.mark{font-family:"Space Grotesk",sans-serif}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+a{color:inherit}
+::selection{background:rgba(200,16,46,.16)}
+.wrap{max-width:1320px;margin:0 auto;padding:0 22px}
+
+/* HEADER */
+header.app{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--surface) 86%,transparent);
+  backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--hairline)}
+.hbar{display:flex;align-items:center;gap:18px;padding:14px 0;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px;min-width:0}
+.mark{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;flex:0 0 auto;
+  background:linear-gradient(135deg,var(--accent),var(--accent-dk));color:#fff;font-weight:700;font-size:15px;
+  letter-spacing:.02em;box-shadow:0 6px 16px rgba(200,16,46,.32)}
+.brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.14em;line-height:1}
+.brand p{margin:3px 0 0;font-size:12px;color:var(--ink-2);letter-spacing:.01em}
+.brand p b{color:var(--accent);font-weight:600}
+.hmeta{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{display:inline-flex;flex-direction:column;gap:1px;padding:7px 13px;border-radius:11px;background:var(--surface-2);
+  border:1px solid var(--hairline);line-height:1.15}
+.badge .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+.badge .v{font-size:12.5px;font-weight:600;color:var(--ink)}
+.badge.live .v{color:#1F9D6B}
+.iconbtn{width:40px;height:40px;border-radius:11px;border:1px solid var(--hairline);background:var(--surface);
+  color:var(--ink);cursor:pointer;font-size:17px;display:grid;place-items:center;transition:.2s}
+.iconbtn:hover{background:var(--surface-2);transform:translateY(-1px)}
+
+/* FILTER BAR */
+.filterbar{position:sticky;top:73px;z-index:50;background:color-mix(in srgb,var(--surface) 92%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--hairline)}
+.fb-inner{display:flex;gap:14px;align-items:flex-end;padding:12px 0;flex-wrap:wrap}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup>label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;padding-left:2px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--hairline);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--ink-2);padding:7px 13px;border-radius:8px;font:inherit;
+  font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg button.on[data-u="0"]{color:var(--accent)}
+select.fsel{appearance:none;background:var(--surface-2) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238794A7' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>") no-repeat right 11px center;
+  border:1px solid var(--hairline);border-radius:10px;padding:9px 32px 9px 12px;font:inherit;font-size:12.5px;color:var(--ink);
+  cursor:pointer;min-width:210px;max-width:320px;font-weight:500}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--hairline);background:var(--surface-2);color:var(--ink-2);border-radius:999px;
+  padding:6px 12px;font-size:11.5px;font-weight:600;cursor:pointer;transition:.16s;display:inline-flex;align-items:center;gap:6px}
+.chip .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.chip.on{color:#fff;border-color:transparent}
+.chip:hover{transform:translateY(-1px)}
+.sliderbox{display:flex;flex-direction:column;gap:5px;min-width:190px}
+.sliderrow{display:flex;align-items:center;gap:9px}
+.rangewrap{position:relative;height:26px;flex:1}
+.rangewrap input[type=range]{position:absolute;width:100%;top:8px;margin:0;pointer-events:none;-webkit-appearance:none;background:transparent}
+.rangewrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:16px;height:16px;border-radius:50%;
+  background:var(--surface);border:3px solid var(--accent);cursor:pointer;box-shadow:var(--shadow);margin-top:-1px}
+.rangewrap input[type=range]::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:var(--surface);border:3px solid var(--accent);cursor:pointer}
+.rangetrack{position:absolute;top:12px;left:0;right:0;height:5px;border-radius:5px;background:var(--grid)}
+.rangefill{position:absolute;top:12px;height:5px;border-radius:5px;background:linear-gradient(90deg,var(--f1),var(--f4),var(--f7))}
+.agelabel{font-size:12px;font-weight:600;color:var(--ink);min-width:74px;text-align:right}
+.ghost{border:1px solid var(--hairline);background:var(--surface);color:var(--ink-2);border-radius:10px;padding:9px 14px;
+  font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:7px}
+.ghost:hover{background:var(--surface-2);color:var(--ink)}
+.ghost.solid{background:var(--accent);color:#fff;border-color:transparent}
+.ghost.solid:hover{background:var(--accent-dk)}
+.exportmenu{position:relative}
+.exportpop{position:absolute;right:0;top:calc(100% + 6px);background:var(--surface);border:1px solid var(--hairline);
+  border-radius:12px;box-shadow:var(--shadow-lg);padding:6px;min-width:210px;display:none;flex-direction:column;gap:2px;z-index:80}
+.exportpop.open{display:flex}
+.exportpop button{border:0;background:transparent;color:var(--ink);text-align:left;padding:9px 11px;border-radius:8px;
+  font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;gap:9px;align-items:center}
+.exportpop button:hover{background:var(--surface-2)}
+
+/* ACTIVE CRUMB */
+.crumb{display:flex;align-items:center;gap:9px;padding:11px 0 0;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.crumb .tag{background:var(--surface);border:1px solid var(--hairline);border-radius:999px;padding:4px 10px 4px 12px;
+  display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--ink)}
+.crumb .tag button{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0}
+.crumb .tag button:hover{color:var(--accent)}
+
+/* SECTIONS */
+main{padding:26px 0 60px}
+.section{margin-top:34px}
+.section-head{display:flex;align-items:baseline;gap:12px;margin-bottom:15px;flex-wrap:wrap}
+.section-head .idx{font-family:"Space Grotesk";font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.06em}
+.section-head h2{margin:0;font-size:17px;font-weight:600;letter-spacing:-.01em}
+.section-head .sub{font-size:12.5px;color:var(--muted);margin-left:2px}
+.card{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+.card h3{margin:0 0 3px;font-size:14.5px;font-weight:600;letter-spacing:-.01em}
+.card .csub{font-size:12px;color:var(--muted);margin:0 0 15px}
+.chead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.mini-toggle{display:inline-flex;background:var(--surface-2);border:1px solid var(--hairline);border-radius:9px;padding:3px}
+.mini-toggle button{border:0;background:transparent;color:var(--ink-2);padding:5px 11px;border-radius:7px;font:inherit;
+  font-size:11.5px;font-weight:600;cursor:pointer}
+.mini-toggle button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+
+/* KPI */
+.kpigrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--hairline);border-radius:var(--radius-sm);padding:16px 17px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;opacity:0;transform:translateY(10px);animation:rise .5s forwards}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--kc,var(--accent))}
+.kpi .kl{font-size:11px;color:var(--ink-2);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .kv{font-size:30px;font-weight:700;margin-top:7px;line-height:1;color:var(--ink)}
+.kpi .kf{font-size:11.5px;color:var(--muted);margin-top:6px;min-height:15px}
+.kpi .kf b{color:var(--kc,var(--accent))}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* SPECTRUM (signature) */
+.spectrum{margin-bottom:4px}
+.spec-bar{display:flex;height:74px;border-radius:13px;overflow:hidden;border:1px solid var(--hairline);box-shadow:var(--shadow)}
+.spec-seg{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff;
+  min-width:0;cursor:pointer;transition:flex-grow .6s cubic-bezier(.4,0,.2,1),filter .18s;overflow:hidden}
+.spec-seg:hover{filter:brightness(1.08)}
+.spec-seg.dim{filter:grayscale(.55) brightness(.9);opacity:.55}
+.spec-seg .sv{font-family:"Space Grotesk";font-weight:700;font-size:17px;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.25)}
+.spec-seg .sp{font-size:10.5px;font-weight:600;opacity:.92;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.spec-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:13px}
+.spec-legend .li{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2);font-weight:500;cursor:pointer}
+.spec-legend .li .sw{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
+.spec-legend .li.dim{opacity:.42}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-unit{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.chartbox{position:relative;width:100%}
+.h300{height:300px}.h340{height:340px}.h380{height:380px}.h420{height:420px}.h240{height:240px}
+
+/* UNIT PROFILE cards */
+.uprofile{border:1px solid var(--hairline);border-radius:var(--radius-sm);padding:16px;background:var(--surface-2)}
+.uprofile h4{margin:0 0 12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:8px}
+.uprofile h4 .udot{width:10px;height:10px;border-radius:3px;background:var(--accent)}
+.ustat{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--hairline);font-size:12.5px}
+.ustat:last-child{border-bottom:0}
+.ustat .l{color:var(--ink-2)}.ustat .v{font-weight:600;font-family:"Space Grotesk";font-variant-numeric:tabular-nums}
+
+/* HEATMAP */
+.heat-scroll{overflow-x:auto;margin:0 -4px;padding:0 4px}
+table.heat{border-collapse:separate;border-spacing:3px;width:100%;min-width:640px}
+table.heat th{font-size:10.5px;font-weight:600;color:var(--ink-2);padding:6px 4px;text-align:center;white-space:nowrap}
+table.heat th.rowh{text-align:left;min-width:210px;position:sticky;left:0;background:var(--surface);z-index:2}
+table.heat td{text-align:center;padding:0;border-radius:7px;height:34px;font-size:12px;font-weight:600;
+  font-family:"Space Grotesk";color:#fff;transition:transform .15s;cursor:default;position:relative}
+table.heat td:hover{transform:scale(1.09);z-index:3;box-shadow:var(--shadow)}
+table.heat td.z{color:var(--muted);background:var(--surface-2)!important}
+.heat-scale{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:12px}
+.heat-grad{width:120px;height:9px;border-radius:5px;background:linear-gradient(90deg,#E7ECF3,var(--f3),var(--f7))}
+
+/* RANKING */
+.rank-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.rank-tabs button{border:1px solid var(--hairline);background:var(--surface-2);color:var(--ink-2);border-radius:9px;
+  padding:8px 13px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:.16s}
+.rank-tabs button.on{background:var(--ink);color:var(--surface);border-color:transparent}
+.ranklist{display:flex;flex-direction:column;gap:9px}
+.rankrow{display:grid;grid-template-columns:26px 1fr auto;gap:12px;align-items:center;padding:11px 13px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--hairline)}
+.rankrow .rk{font-family:"Space Grotesk";font-weight:700;color:var(--muted);text-align:center;font-size:14px}
+.rankrow .rn{min-width:0}
+.rankrow .rn .t{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rankrow .rn .u{font-size:11px;color:var(--muted)}
+.rankrow .rbar{height:6px;border-radius:4px;background:var(--grid);margin-top:6px;overflow:hidden}
+.rankrow .rbar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.rankrow .rv{font-family:"Space Grotesk";font-weight:700;font-size:16px;text-align:right}
+.rankrow .rv small{display:block;font-size:10px;color:var(--muted);font-weight:500}
+
+/* QUALITY */
+.qgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.qcard{border:1px solid var(--hairline);border-radius:var(--radius-sm);padding:15px;background:var(--surface-2)}
+.qcard .qv{font-family:"Space Grotesk";font-weight:700;font-size:24px}
+.qcard .ql{font-size:11.5px;color:var(--ink-2);margin-top:3px;font-weight:500}
+.qbarwrap{margin-top:16px;background:var(--surface-2);border:1px solid var(--hairline);border-radius:12px;padding:15px 17px}
+.qbar{height:11px;border-radius:6px;background:var(--grid);overflow:hidden;display:flex;margin-top:9px}
+.qbar i{display:block;height:100%}
+.note{font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--hairline);border-left:3px solid var(--accent);
+  border-radius:10px;padding:13px 15px;line-height:1.6}
+
+/* UPDATE BASE */
+.drop{border:2px dashed var(--hairline);border-radius:14px;padding:26px;text-align:center;transition:.2s;cursor:pointer;background:var(--surface-2)}
+.drop:hover,.drop.hot{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 5%,var(--surface-2))}
+.drop .di{font-size:30px;margin-bottom:8px}
+.drop .dt{font-weight:600;font-size:13.5px}
+.drop .dd{font-size:12px;color:var(--muted);margin-top:5px}
+.upstatus{margin-top:12px;font-size:12.5px;display:none;padding:11px 14px;border-radius:10px;font-weight:500}
+.upstatus.ok{display:block;background:rgba(31,157,107,.12);color:#1F9D6B;border:1px solid rgba(31,157,107,.3)}
+.upstatus.err{display:block;background:rgba(200,16,46,.1);color:var(--accent);border:1px solid rgba(200,16,46,.3)}
+
+/* FOOTER */
+footer{margin-top:44px;padding-top:22px;border-top:1px solid var(--hairline);color:var(--muted);font-size:12px;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+/* toast */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--tooltip-bg);
+  color:var(--tooltip-ink);padding:11px 18px;border-radius:11px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);
+  z-index:200;opacity:0;transition:.3s;pointer-events:none}
+#toast.show{transform:translateX(-50%);opacity:1}
+
+.mt16{margin-top:16px}.mt14{margin-top:14px}
+@media(max-width:1080px){.grid2,.grid2b{grid-template-columns:1fr}.grid-unit{grid-template-columns:1fr}.kpigrid{grid-template-columns:repeat(2,1fr)}.qgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.wrap{padding:0 14px}.brand h1{font-size:16px}.hmeta .badge:nth-child(2){display:none}.kpigrid{grid-template-columns:repeat(2,1fr)}
+  .spec-seg .sp{display:none}.filterbar{top:69px}.section-head h2{font-size:15.5px}.kpi .kv{font-size:25px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.001s!important;transition-duration:.001s!important;scroll-behavior:auto}}
+@media print{header.app,.filterbar,.crumb,.exportmenu,#updatebase,.iconbtn,#toast{display:none!important}
+  body{background:#fff}.card,.kpi{box-shadow:none;border-color:#ccc}.section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="app">
+  <div class="wrap hbar">
+    <div class="brand">
+      <div class="mark">LS</div>
+      <div>
+        <h1>FAIXA ETÁRIA</h1>
+        <p>Perfil etário dos alunos ativos — <b>Uni LS</b></p>
+      </div>
+    </div>
+    <div class="hmeta">
+      <div class="badge"><span class="k">Base</span><span class="v">Alunos ativos · 2026</span></div>
+      <div class="badge live"><span class="k">Status</span><span class="v">● Ativos</span></div>
+      <div class="badge"><span class="k">Atualização</span><span class="v" id="lastupd">11/08/2026 · 15h</span></div>
+      <button class="iconbtn" id="themebtn" title="Alternar tema" aria-label="Alternar tema">🌙</button>
+    </div>
+  </div>
+</header>
+
+<div class="filterbar">
+  <div class="wrap fb-inner">
+    <div class="fgroup">
+      <label>Unidade de Ensino</label>
+      <div class="seg" id="unitseg"></div>
+    </div>
+    <div class="fgroup">
+      <label>Curso</label>
+      <select class="fsel" id="coursesel"><option value="">Todos os cursos</option></select>
+    </div>
+    <div class="fgroup">
+      <label>Modalidade</label>
+      <div class="seg" id="modseg"></div>
+    </div>
+    <div class="fgroup">
+      <label>Cursos</label>
+      <div class="mini-toggle" id="splitseg" style="padding:4px"><button class="on" data-s="0">Consolidado</button><button data-s="1">Por modalidade</button></div>
+    </div>
+    <div class="fgroup" style="flex:1;min-width:210px">
+      <label>Faixa Etária</label>
+      <div class="chips" id="faixachips"></div>
+    </div>
+    <div class="fgroup" style="flex:1;min-width:210px">
+      <label>Geração</label>
+      <div class="chips" id="genchips"></div>
+    </div>
+    <div class="sliderbox">
+      <label style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600">Faixa de idade</label>
+      <div class="sliderrow">
+        <div class="rangewrap">
+          <div class="rangetrack"></div><div class="rangefill" id="rfill"></div>
+          <input type="range" id="rmin" min="0" max="80" value="0">
+          <input type="range" id="rmax" min="0" max="80" value="80">
+        </div>
+        <div class="agelabel" id="agelbl">0 – 80+</div>
+      </div>
+    </div>
+    <button class="ghost" id="clearbtn">✕ Limpar filtros</button>
+    <div class="exportmenu">
+      <button class="ghost" id="exportbtn">⤓ Exportar</button>
+      <div class="exportpop" id="exportpop">
+        <button data-x="csv">📄 Exportar dados filtrados (CSV)</button>
+        <button data-x="faixa">🖼️ Gráfico Faixa Etária (PNG)</button>
+        <button data-x="ger">🖼️ Gráfico Geração (PNG)</button>
+        <button data-x="pdf">🖨️ Relatório (PDF / imprimir)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="crumb" id="crumb"></div>
+
+  <!-- 1. VISÃO GERAL -->
+  <section class="section" id="overview">
+    <div class="section-head"><span class="idx">01</span><h2>Visão Geral</h2><span class="sub">indicadores da seleção atual</span></div>
+    <div class="kpigrid" id="kpigrid"></div>
+  </section>
+
+  <!-- 2. DISTRIBUIÇÃO POR FAIXA -->
+  <section class="section" id="dist-faixa">
+    <div class="section-head"><span class="idx">02</span><h2>Distribuição por Faixa Etária</h2><span class="sub">o espectro etário do corpo discente</span></div>
+    <div class="card">
+      <div class="chead"><div><h3>Espectro Etário</h3><p class="csub">clique em um segmento para filtrar todo o painel</p></div></div>
+      <div class="spectrum"><div class="spec-bar" id="specbar"></div><div class="spec-legend" id="speclegend"></div></div>
+    </div>
+    <div class="grid2 mt16">
+      <div class="card"><h3>Alunos por faixa etária</h3><p class="csub">quantidade absoluta · clique para filtrar</p>
+        <div class="chartbox h340"><canvas id="chFaixa"></canvas></div></div>
+      <div class="card"><h3>Participação (%)</h3><p class="csub">peso de cada faixa no total</p>
+        <div class="chartbox h340"><canvas id="chFaixaPct"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- 3. GERAÇÃO -->
+  <section class="section" id="dist-ger">
+    <div class="section-head"><span class="idx">03</span><h2>Distribuição por Geração</h2><span class="sub">classificação geracional dos alunos</span></div>
+    <div class="grid2b">
+      <div class="card"><h3>Composição geracional</h3><p class="csub">clique em uma geração para filtrar</p>
+        <div class="chartbox h340"><canvas id="chGen"></canvas></div></div>
+      <div class="card"><h3>Gerações em detalhe</h3><p class="csub">faixa de idade equivalente e volume</p>
+        <div id="genlist" class="mt14"></div></div>
+    </div>
+  </section>
+
+  <!-- 4. PERFIL POR UNIDADE -->
+  <section class="section" id="unit-profile">
+    <div class="section-head"><span class="idx">04</span><h2>Perfil por Unidade de Ensino</h2><span class="sub">comparativo entre unidades</span></div>
+    <div class="grid-unit" id="unitcards"></div>
+    <div class="card mt16">
+      <div class="chead"><div><h3>Faixa Etária × Unidade</h3><p class="csub">barras empilhadas · concentração etária por unidade</p></div>
+        <div class="mini-toggle" id="unitmode"><button class="on" data-m="abs">Quantidade</button><button data-m="pct">Percentual</button></div></div>
+      <div class="chartbox h340 mt14"><canvas id="chUnit"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 5. IDADE MÉDIA POR CURSO -->
+  <section class="section" id="avg-course">
+    <div class="section-head"><span class="idx">05</span><h2>Idade Média por Curso</h2><span class="sub">ordenado do mais jovem ao mais maduro</span></div>
+    <div class="card">
+      <div class="chead"><div><h3>Curso × Idade média</h3><p class="csub">selecione uma unidade nos filtros para restringir</p></div></div>
+      <div class="chartbox mt14" id="avgbox"><canvas id="chAvg"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 6. FAIXA × CURSO -->
+  <section class="section" id="faixa-course">
+    <div class="section-head"><span class="idx">06</span><h2>Faixa Etária × Curso</h2><span class="sub">distribuição etária dentro de cada curso</span></div>
+    <div class="card">
+      <div class="chead"><div><h3>Barras empilhadas por curso</h3><p class="csub">os 12 maiores cursos da seleção</p></div>
+        <div class="mini-toggle" id="fcmode"><button class="on" data-m="abs">Quantidade</button><button data-m="pct">Percentual</button></div></div>
+      <div class="chartbox mt14" id="fcbox"><canvas id="chFC"></canvas></div>
+    </div>
+  </section>
+
+  <!-- 7. HEATMAP -->
+  <section class="section" id="heat">
+    <div class="section-head"><span class="idx">07</span><h2>Mapa de Calor</h2><span class="sub">concentração cruzada</span></div>
+    <div class="card">
+      <div class="chead"><div><h3 id="heattitle">Curso × Faixa Etária</h3><p class="csub">quanto mais escura a célula, maior a concentração de alunos</p></div>
+        <div class="mini-toggle" id="heatmode"><button class="on" data-m="curso">Curso × Faixa</button><button data-m="unidade">Unidade × Faixa</button></div></div>
+      <div class="heat-scroll mt14"><div id="heatmap"></div></div>
+      <div class="heat-scale"><span>menos</span><div class="heat-grad"></div><span>mais alunos</span></div>
+    </div>
+  </section>
+
+  <!-- 8. RANKING -->
+  <section class="section" id="ranking">
+    <div class="section-head"><span class="idx">08</span><h2>Ranking de Cursos</h2><span class="sub">ordenações rápidas para a gestão</span></div>
+    <div class="card">
+      <div class="rank-tabs" id="ranktabs">
+        <button class="on" data-r="young">Mais jovens</button>
+        <button data-r="old">Mais velhos</button>
+        <button data-r="vol">Mais alunos</button>
+        <button data-r="j1824">Maior % 18–24</button>
+        <button data-r="a45">Maior % 45+</button>
+      </div>
+      <div class="ranklist" id="ranklist"></div>
+    </div>
+  </section>
+
+  <!-- 9. QUALIDADE -->
+  <section class="section" id="quality">
+    <div class="section-head"><span class="idx">09</span><h2>Qualidade da Base</h2><span class="sub">transparência sobre os dados de origem</span></div>
+    <div class="card">
+      <div class="qgrid" id="qgrid"></div>
+      <div class="qbarwrap">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2);font-weight:600">
+          <span>Cobertura de idade válida</span><span id="qpct" class="num"></span></div>
+        <div class="qbar" id="qbar"></div>
+      </div>
+      <div class="note mt16" id="qnote"></div>
+    </div>
+  </section>
+
+  <!-- 10. SOBRE -->
+  <section class="section" id="about">
+    <div class="section-head"><span class="idx">10</span><h2>Sobre os dados</h2></div>
+    <div class="note">Este dashboard apresenta o perfil etário dos alunos ativos da Uni LS com base nos registros do ano de 2026.
+      A idade dos alunos é calculada automaticamente a partir da data de nascimento, considerando como data de referência
+      <b>11/08/2026</b>. Os campos exibidos são derivados exclusivamente da base fornecida — nenhum dado foi inventado.
+      Nomes e CPF não são incluídos nesta publicação; apenas idade, unidade, curso e modalidade são utilizados para as análises agregadas.
+      Cursos registrados em caixa-alta correspondem à modalidade <b>semipresencial</b> e são consolidados sob o mesmo nome do curso presencial —
+      use o filtro <b>Modalidade</b> ou a opção <b>Cursos: Por modalidade</b> para separá-los.</div>
+  </section>
+
+  <!-- 11. ATUALIZAR BASE -->
+  <section class="section" id="updatebase">
+    <div class="section-head"><span class="idx">11</span><h2>Atualizar Base</h2><span class="sub">carregue uma nova planilha para recalcular tudo</span></div>
+    <div class="card">
+      <div class="drop" id="drop">
+        <div class="di">📊</div>
+        <div class="dt">Selecionar planilha (.xlsx)</div>
+        <div class="dd">O sistema identifica Data de Nascimento, Unidade e Curso, calcula idades e reclassifica automaticamente</div>
+        <input type="file" id="fileinp" accept=".xlsx,.xls" hidden>
+      </div>
+      <div class="upstatus" id="upstatus"></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Dashboard Institucional de BI · <b style="color:var(--ink)">Uni LS</b> — Faixa Etária v1</span>
+    <span>Data de referência de idade: 11/08/2026 · Base: Alunos ativos 2026</span>
+  </footer>
+</main>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+/* ============ BASE EMBUTIDA (anonimizada) ============ */
+const BASE = {"ref":"2026-08-11","units":["Uni LS - CÂMPUS TAGUATINGA","LS ESCOLA TÉCNICA","Não informado"],"courses":[{"n":"Superior de Tecnologia em Estética e Cosmética","u":0},{"n":"Bacharelado em Direito","u":0},{"n":"Bacharelado em Nutrição","u":0},{"n":"Bacharelado em Enfermagem","u":0},{"n":"Técnico de Nível Médio de Técnico em Análises Clínicas","u":1},{"n":"Bacharelado em Biomedicina","u":0},{"n":"Técnico de Nível Médio de Técnico em Enfermagem - Área Saúde","u":1},{"n":"Técnico de Nível Médio de Técnico em Necropsia","u":1},{"n":"Superior de Tecnologia em Gestão Pública","u":0},{"n":"Bacharelado em Farmácia","u":0},{"n":"Bacharelado em Terapia Ocupacional","u":0},{"n":"Bacharelado em Psicologia","u":0},{"n":"Bacharelado em Fisioterapia","u":0},{"n":"Superior de Tecnologia em Radiologia","u":0},{"n":"Superior de Tecnologia em Gestão de Recursos Humanos","u":0},{"n":"Técnico de Nível Médio de Técnico em Radiologia - Ambiente e Saúde","u":1},{"n":"Bacharelado em Odontologia","u":0},{"n":"Bacharelado em Administração","u":0},{"n":"Superior de Tecnologia em Logística","u":0},{"n":"Superior de Tecnologia em Marketing","u":0},{"n":"Superior de Tecnologia em Gestão Hospitalar","u":0},{"n":"Bacharelado em Ciências Contábeis","u":0},{"n":"Superior de Tecnologia em Gestão Comercial","u":0},{"n":"Técnico de Nível Médio de Técnico em Enfermagem Hibrido","u":1},{"n":"Superior de Tecnologia em Análise e Desenvolvimento de Sistemas","u":0},{"n":"Superior de Tecnologia em Gestão Financeira","u":0},{"n":"Não informado","u":2}],"rows":[[0,0,22,0],[0,1,38,0],[0,2,22,0],[0,3,46,0],[1,4,42,0],[0,3,47,0],[0,5,51,0],[1,6,21,0],[1,6,45,0],[1,7,46,0],[1,7,43,0],[1,7,43,0],[0,8,22,1],[1,6,33,0],[1,6,28,0],[1,6,20,0],[0,9,25,0],[0,10,28,0],[1,7,19,0],[0,11,20,0],[1,6,18,0],[1,6,20,0],[0,3,19,0],[1,7,20,0],[0,3,49,0],[0,11,24,0],[1,6,23,0],[0,3,24,0],[0,12,25,0],[0,5,45,0],[0,10,48,0],[1,6,32,0],[1,6,26,0],[0,11,22,0],[0,5,19,0],[1,6,20,0],[0,9,23,0],[0,13,20,0],[0,0,43,1],[0,9,49,0],[0,9,34,1],[1,6,27,0],[1,4,28,0],[1,4,28,0],[0,9,18,0],[0,12,23,0],[0,14,22,1],[1,15,55,0],[0,16,35,0],[0,1,51,0],[0,1,57,0],[0,16,33,0],[0,1,23,0],[0,8,22,1],[0,12,23,0],[0,3,19,0],[0,3,21,0],[0,5,19,0],[0,1,19,0],[1,15,27,0],[0,3,19,0],[1,6,18,0],[0,16,18,0],[0,1,35,0],[1,6,33,0],[0,9,22,0],[0,3,37,0],[0,3,42,0],[0,3,28,0],[0,3,35,0],[0,5,20,0],[1,7,23,0],[0,10,41,0],[0,16,36,0],[0,3,19,0],[0,8,22,1],[0,3,31,0],[0,12,22,0],[0,2,37,0],[0,17,31,1],[0,1,23,0],[0,5,22,0],[0,12,20,0],[0,5,35,0],[1,6,29,0],[1,6,21,0],[0,1,24,0],[0,2,26,0],[1,6,34,0],[0,18,32,1],[1,15,20,0],[0,2,27,0],[1,15,26,0],[0,3,23,0],[0,3,20,0],[0,3,31,0],[0,3,19,0],[0,9,21,0],[0,9,31,0],[0,16,31,0],[0,9,30,0],[0,5,19,0],[0,12,30,0],[0,3,20,0],[0,3,30,0],[0,3,29,0],[0,11,20,0],[0,8,25,1],[0,2,18,0],[1,4,32,0],[0,3,19,0],[0,3,28,0],[0,19,22,1],[1,6,22,0],[0,9,20,0],[0,3,23,0],[1,6,38,0],[1,6,23,0],[0,5,20,1],[0,11,19,0],[0,9,28,0],[0,16,19,0],[0,1,23,0],[1,6,38,0],[1,6,22,0],[1,15,24,0],[0,20,24,1],[1,6,23,0],[0,11,21,0],[0,5,30,0],[0,10,26,0],[0,3,21,0],[0,0,22,1],[0,3,20,0],[0,3,33,0],[0,16,21,0],[1,6,36,0],[0,5,20,0],[0,0,19,0],[0,10,19,0],[0,5,21,0],[0,3,20,0],[1,6,25,0],[0,9,22,0],[0,3,22,0],[1,6,21,0],[0,11,25,0],[0,2,21,0],[0,3,22,0],[0,12,23,0],[0,3,21,0],[0,3,18,0],[0,12,24,0],[0,5,20,0],[0,5,20,0],[1,6,19,0],[0,12,22,0],[0,5,18,0],[1,7,19,0],[1,7,19,0],[0,5,20,0],[1,6,17,0],[0,5,21,0],[0,11,18,0],[0,10,19,0],[0,5,23,0],[0,2,27,0],[0,3,25,0],[0,16,18,0],[0,12,18,0],[0,2,21,0],[0,3,21,0],[0,11,27,0],[1,6,23,0],[0,5,20,0],[1,6,28,0],[0,3,21,0],[0,3,21,0],[0,0,23,0],[0,21,25,0],[0,14,21,1],[1,4,17,0],[1,4,17,0],[1,7,19,0],[1,7,19,0],[0,2,32,0],[1,4,29,0],[0,0,22,0],[1,6,44,0],[0,11,18,0],[0,10,27,0],[1,6,19,0],[0,9,20,0],[0,3,30,0],[0,12,21,0],[0,3,22,0],[0,11,18,0],[0,12,22,0],[0,5,21,0],[1,6,17,0],[0,2,20,0],[0,2,20,0],[0,1,22,0],[0,3,19,0],[0,3,20,0],[0,11,19,0],[0,5,20,0],[0,3,23,0],[0,3,19,0],[1,6,22,0],[0,3,21,0],[0,3,28,0],[0,3,23,0],[0,11,18,0],[0,1,20,0],[0,5,25,0],[0,10,23,1],[0,12,20,0],[0,2,20,0],[0,9,24,0],[0,12,50,0],[0,17,46,1],[0,10,32,0],[0,10,35,0],[1,6,20,0],[0,5,23,0],[0,1,22,0],[0,3,19,0],[0,16,21,0],[0,0,22,1],[0,9,22,0],[1,15,19,0],[0,3,21,0],[0,5,18,1],[1,6,18,0],[1,6,19,0],[1,6,19,0],[0,9,23,0],[0,3,21,0],[1,6,23,0],[0,11,23,0],[0,12,21,0],[0,12,25,0],[1,7,24,0],[0,3,20,0],[0,5,26,0],[1,6,21,0],[1,15,30,0],[0,1,21,0],[0,12,27,0],[1,6,19,0],[0,0,21,0],[0,3,18,0],[0,5,20,0],[1,7,19,0],[1,7,19,0],[0,3,22,0],[0,11,19,0],[0,3,27,0],[0,10,44,1],[0,3,21,0],[1,6,19,0],[0,16,18,0],[0,5,20,1],[1,7,21,0],[1,7,21,0],[0,2,19,0],[0,2,21,0],[0,10,21,0],[0,3,24,0],[1,6,19,0],[1,15,34,0],[1,6,19,0],[0,11,28,0],[0,12,28,0],[0,16,20,0],[0,2,21,0],[0,11,20,0],[0,5,18,0],[0,3,18,0],[1,6,51,0],[1,6,38,0],[1,15,20,0],[1,6,20,0],[0,10,46,1],[0,1,34,0],[1,7,27,0],[1,7,27,0],[0,16,29,0],[1,6,50,0],[0,21,46,0],[1,6,37,0],[1,15,50,0],[1,6,28,0],[0,5,22,0],[1,6,27,0],[0,0,43,0],[0,3,51,0],[0,22,42,1],[0,9,28,0],[0,3,20,0],[1,7,38,0],[0,17,22,1],[0,16,18,0],[0,12,19,0],[0,0,20,0],[0,1,23,0],[0,3,21,0],[1,23,23,1],[0,3,20,0],[0,16,18,0],[0,5,19,1],[0,12,19,0],[0,3,21,0],[0,3,29,0],[1,7,43,0],[1,7,43,0],[1,15,35,0],[1,6,51,0],[1,6,19,0],[0,3,28,0],[0,3,21,0],[0,1,33,0],[0,1,45,0],[0,1,28,0],[0,12,37,0],[1,23,38,1],[1,7,24,0],[1,7,24,0],[0,3,45,0],[1,6,20,0],[1,6,24,0],[0,11,21,0],[1,6,52,0],[1,6,21,0],[0,5,32,0],[0,3,21,0],[0,0,28,0],[1,6,25,0],[0,20,23,1],[0,2,21,1],[0,2,22,0],[1,23,23,1],[0,3,29,0],[0,10,19,1],[0,12,25,0],[1,15,31,0],[0,3,26,0],[0,2,19,0],[0,5,22,0],[0,14,31,1],[0,2,18,0],[0,12,22,0],[1,6,22,0],[0,12,22,0],[1,6,55,0],[0,11,52,0],[0,16,54,0],[1,7,49,0],[1,7,49,0],[0,0,25,1],[0,3,36,0],[0,3,24,0],[0,20,23,1],[0,5,21,0],[0,2,20,0],[1,7,19,0],[0,5,19,0],[0,5,23,0],[0,3,21,0],[0,16,21,0],[1,7,18,0],[1,6,17,0],[0,12,20,0],[0,12,22,0],[0,9,19,0],[1,7,21,0],[1,7,21,0],[0,16,26,0],[0,11,19,0],[0,9,21,0],[0,5,21,1],[0,11,20,0],[0,17,21,0],[0,10,43,1],[0,5,33,0],[1,7,26,0],[0,11,21,0],[0,12,18,0],[0,1,25,0],[1,6,30,0],[0,5,19,0],[1,6,18,0],[0,0,20,0],[0,12,18,0],[1,6,18,0],[0,3,24,0],[0,3,23,0],[0,10,20,1],[0,8,22,1],[1,6,16,0],[0,5,26,0],[0,0,30,1],[1,6,26,0],[0,10,35,0],[0,3,47,0],[1,4,26,0],[1,4,26,0],[0,1,26,0],[0,11,38,0],[1,6,34,0],[0,1,18,0],[0,12,28,0],[0,1,36,0],[0,1,24,0],[0,11,20,0],[0,3,39,0],[0,1,19,0],[0,3,28,0],[1,4,63,0],[0,17,23,0],[0,1,21,0],[0,9,22,0],[0,10,27,0],[0,3,33,0],[0,3,40,0],[1,6,58,0],[0,2,26,0],[0,2,18,0],[1,23,28,1],[1,4,20,0],[1,4,20,0],[0,3,20,0],[1,6,17,0],[0,10,33,1],[0,12,19,0],[0,12,27,1],[1,6,18,0],[0,3,18,0],[1,6,19,0],[0,5,25,0],[0,3,43,0],[1,7,32,0],[0,3,42,0],[1,6,27,0],[0,3,26,0],[0,3,22,0],[0,5,20,0],[0,5,21,0],[0,3,20,0],[1,6,38,0],[0,3,22,0],[0,11,20,0],[0,3,22,0],[0,3,25,0],[0,3,22,0],[0,1,37,0],[0,3,23,0],[1,6,35,0],[0,5,21,0],[0,2,33,0],[0,21,31,0],[0,10,29,0],[1,7,29,0],[1,7,29,0],[1,15,35,0],[0,5,26,0],[0,11,20,0],[0,3,22,0],[0,12,27,0],[0,3,28,0],[0,3,24,0],[1,6,17,0],[1,6,23,0],[0,21,22,1],[1,6,33,0],[1,6,21,0],[0,16,18,0],[0,12,32,0],[0,10,22,0],[0,3,19,0],[1,6,24,0],[0,1,20,0],[0,3,25,0],[0,1,31,0],[0,3,24,0],[1,7,26,0],[1,7,26,0],[0,2,21,0],[0,5,23,0],[0,3,20,0],[0,3,22,0],[0,2,21,0],[0,13,43,1],[1,6,54,0],[0,11,20,0],[0,16,32,0],[0,12,21,0],[0,3,24,0],[0,3,34,0],[0,9,28,0],[0,0,18,1],[1,15,24,0],[0,5,20,0],[0,5,23,0],[0,5,22,0],[1,6,23,0],[0,2,21,0],[0,0,27,1],[1,7,19,0],[1,7,19,0],[1,7,24,0],[0,5,24,0],[0,20,26,1],[0,12,27,0],[0,3,25,0],[0,16,32,0],[0,0,29,0],[1,7,25,0],[1,6,31,0],[0,9,21,0],[0,5,19,0],[0,0,19,0],[0,3,23,0],[0,12,27,0],[0,3,23,0],[0,3,21,0],[0,11,19,0],[0,16,20,0],[1,7,29,0],[0,17,19,1],[0,3,24,0],[1,7,27,0],[1,7,19,0],[1,7,19,0],[0,10,21,0],[0,3,24,0],[0,5,19,0],[0,5,21,0],[0,3,22,0],[0,12,21,0],[1,7,28,0],[1,7,28,0],[0,5,21,0],[0,10,22,0],[0,10,20,1],[0,5,20,0],[0,11,20,0],[0,12,25,0],[1,6,30,0],[1,6,21,0],[0,3,27,0],[0,10,27,0],[0,3,27,0],[0,3,23,0],[0,3,20,0],[0,17,26,1],[1,7,26,0],[1,7,26,0],[0,3,25,0],[0,12,20,0],[0,1,23,0],[0,16,22,0],[0,1,19,0],[0,3,29,0],[0,11,29,0],[0,11,22,0],[0,2,23,0],[1,6,27,0],[0,10,18,0],[1,4,20,0],[0,1,24,0],[0,9,21,0],[0,0,25,0],[1,6,25,0],[0,9,21,0],[0,1,28,0],[0,9,30,0],[0,12,37,0],[1,6,25,0],[0,11,19,0],[0,11,19,0],[0,24,25,1],[0,9,24,0],[0,3,20,0],[1,6,31,0],[0,5,26,0],[0,9,22,0],[0,21,29,0],[0,5,37,0],[0,3,25,0],[0,9,25,0],[0,1,27,0],[0,3,29,0],[1,15,32,0],[0,5,24,0],[0,5,37,0],[0,3,32,0],[0,5,23,0],[0,2,21,0],[1,7,30,0],[0,3,30,0],[0,3,29,0],[1,7,36,0],[1,7,36,0],[0,3,21,0],[0,3,23,0],[1,15,32,0],[0,12,22,1],[0,9,20,1],[1,6,20,0],[0,5,22,1],[0,9,23,0],[1,6,43,0],[0,9,36,0],[0,12,null,0],[1,6,33,0],[1,15,24,0],[0,3,24,0],[0,3,43,0],[1,7,47,0],[1,7,24,0],[1,15,35,0],[0,12,21,0],[0,12,23,0],[0,16,19,0],[0,16,19,0],[0,8,29,1],[1,6,19,0],[0,12,34,0],[0,1,24,0],[0,5,21,0],[0,16,52,0],[1,6,38,0],[0,5,20,0],[0,16,26,0],[1,6,23,0],[1,6,28,0],[1,6,21,0],[0,12,23,0],[1,7,28,0],[1,7,28,0],[1,6,20,0],[1,6,29,0],[0,11,25,0],[0,11,22,0],[0,3,23,0],[0,2,21,0],[1,6,38,0],[0,11,33,0],[1,6,42,0],[0,1,51,0],[1,6,25,0],[1,6,21,0],[0,3,23,0],[0,2,23,0],[0,3,38,0],[0,9,21,0],[0,1,53,0],[0,9,28,0],[0,0,41,1],[0,16,20,0],[0,16,24,0],[0,3,42,0],[0,21,26,1],[0,2,37,0],[0,13,21,0],[0,9,25,0],[0,5,20,0],[0,16,49,0],[1,7,23,0],[0,9,32,1],[1,6,26,0],[0,3,25,0],[0,2,22,0],[1,6,18,0],[0,12,48,0],[1,7,29,0],[0,12,18,0],[1,23,29,1],[0,21,49,1],[0,11,22,0],[1,4,47,0],[0,3,47,0],[0,8,29,1],[0,5,40,1],[0,17,22,0],[0,3,19,0],[0,1,27,0],[0,5,26,0],[0,5,19,0],[0,16,39,0],[0,5,31,0],[0,11,41,0],[0,3,47,0],[0,1,44,0],[0,1,23,0],[1,15,19,0],[1,6,41,0],[0,5,38,0],[0,2,56,0],[0,9,31,0],[0,3,31,0],[1,6,57,0],[0,13,34,1],[0,3,42,0],[0,5,43,0],[0,16,44,0],[0,12,42,0],[0,3,48,0],[0,3,34,0],[1,4,31,0],[1,4,31,0],[1,6,42,0],[0,1,20,0],[0,1,20,0],[0,3,39,0],[1,6,45,0],[1,6,30,0],[0,11,21,0],[1,6,37,0],[0,3,22,0],[0,10,42,1],[0,5,47,0],[1,6,43,0],[0,12,31,0],[0,10,50,0],[1,6,35,0],[0,3,38,0],[1,6,26,0],[1,7,27,0],[1,7,27,0],[0,9,44,0],[0,13,32,1],[1,6,19,0],[0,9,50,1],[1,6,17,0],[0,12,19,0],[0,3,30,0],[0,25,35,1],[0,12,24,1],[0,10,20,1],[0,5,19,0],[0,0,40,1],[0,9,23,0],[1,6,32,0],[0,11,31,0],[1,6,20,0],[1,6,42,0],[0,0,21,0],[0,3,18,0],[0,16,20,0],[0,0,48,0],[0,9,21,0],[1,6,18,0],[1,7,22,0],[0,1,23,0],[0,12,33,1],[0,16,36,0],[0,3,26,0],[0,11,18,0],[0,12,43,0],[0,3,25,0],[1,6,30,0],[0,1,25,0],[0,1,19,0],[0,1,21,0],[1,6,16,0],[0,3,27,0],[0,1,38,0],[0,5,19,0],[0,9,32,0],[1,7,30,0],[1,7,30,0],[0,5,20,0],[0,1,18,0],[1,6,26,0],[1,6,31,0],[1,6,31,0],[1,4,43,0],[1,4,43,0],[0,3,29,0],[0,1,23,0],[0,9,23,0],[0,3,32,0],[1,6,21,0],[0,16,26,0],[1,6,29,0],[0,5,18,0],[1,6,22,0],[0,3,21,0],[0,3,21,0],[1,6,27,0],[0,16,26,0],[0,9,36,0],[1,6,41,0],[0,2,44,0],[0,1,19,0],[0,3,39,0],[0,3,23,0],[1,6,30,0],[1,6,44,0],[0,17,20,1],[1,6,29,0],[0,3,23,0],[1,6,34,0],[0,5,26,0],[1,7,23,0],[1,7,20,0],[1,15,39,0],[1,6,35,0],[0,5,26,0],[0,2,21,0],[1,6,25,0],[0,3,23,0],[1,6,19,0],[1,15,49,0],[0,5,24,1],[0,3,41,0],[0,3,43,0],[1,6,30,0],[1,4,20,0],[1,6,23,0],[0,3,27,0],[0,5,39,0],[0,10,29,0],[0,3,47,0],[0,11,53,0],[1,6,46,0],[0,3,43,0],[0,14,39,1],[0,3,26,0],[1,15,32,0],[1,6,53,0],[1,15,25,0],[1,4,29,0],[0,3,20,0],[0,9,21,0],[0,0,22,0],[0,11,20,0],[0,3,24,0],[1,6,19,0],[1,6,18,0],[0,12,23,0],[0,12,21,0],[0,3,21,0],[0,1,20,0],[1,6,17,0],[0,10,18,0],[1,15,21,0],[1,7,27,0],[1,7,27,0],[1,6,37,0],[1,6,37,0],[0,16,42,0],[0,3,26,0],[0,2,20,0],[0,3,24,0],[0,3,24,0],[1,6,50,0],[1,6,50,0],[0,1,39,0],[0,5,24,0],[0,12,25,0],[1,7,53,0],[1,7,53,0],[0,1,34,0],[1,15,39,0],[0,12,47,0],[1,6,27,0],[1,6,40,0],[1,6,18,0],[1,6,20,0],[0,3,18,0],[1,7,50,0],[1,7,47,0],[0,3,35,0],[0,3,22,0],[1,6,49,0],[0,12,24,0],[0,2,23,0],[0,16,22,0],[0,3,19,0],[0,11,19,0],[1,6,32,0],[0,1,28,0],[0,9,20,0],[1,6,26,0],[0,3,23,0],[0,3,20,0],[0,5,27,0],[0,11,20,0],[0,1,20,0],[0,21,35,1],[1,6,23,0],[0,3,28,0],[0,2,51,0],[0,1,51,0],[0,9,19,0],[0,12,21,0],[0,12,24,0],[0,3,23,0],[0,5,21,1],[0,3,22,0],[1,6,24,0],[0,1,19,0],[1,6,23,0],[0,5,21,0],[0,9,22,0],[0,2,24,1],[0,9,23,0],[1,6,19,0],[0,12,21,0],[0,5,20,0],[0,5,23,0],[0,12,29,0],[0,12,26,0],[0,1,36,0],[1,6,54,0],[1,7,17,0],[1,7,17,0],[1,6,20,0],[0,11,37,0],[0,3,28,0],[0,12,21,0],[1,6,20,0],[0,16,41,0],[1,6,21,0],[0,12,26,1],[0,3,27,0],[0,5,21,0],[1,4,32,0],[0,3,30,0],[1,6,19,0],[0,3,43,0],[1,7,21,0],[1,6,18,0],[1,6,27,0],[0,3,22,0],[0,1,20,0],[0,25,26,1],[1,6,39,0],[0,16,18,0],[0,16,22,0],[0,3,24,0],[0,20,26,1],[1,6,27,0],[0,2,21,0],[0,21,29,1],[0,1,24,0],[0,12,18,0],[0,10,18,0],[0,3,22,0],[0,2,20,0],[0,2,50,0],[0,3,35,0],[0,16,18,0],[1,4,50,0],[1,4,50,0],[0,5,41,0],[0,1,23,0],[0,3,21,0],[0,16,40,0],[1,6,36,0],[1,15,27,0],[0,5,20,0],[0,16,21,0],[0,11,21,0],[0,5,21,0],[0,5,19,0],[0,9,20,0],[0,11,28,0],[1,6,19,0],[1,7,29,0],[1,6,28,0],[0,0,20,0],[0,12,20,0],[0,11,26,0],[0,5,23,0],[0,3,28,0],[1,6,17,0],[0,12,21,0],[1,7,35,0],[0,16,41,0],[1,6,30,0],[1,6,30,0],[1,6,44,0],[0,22,48,1],[1,6,42,0],[0,2,42,0],[0,11,31,0],[0,9,23,0],[1,6,31,0],[1,7,26,0],[1,6,30,0],[0,20,40,1],[0,3,30,0],[0,13,20,1],[0,9,22,0],[1,7,26,0],[1,6,43,0],[0,12,26,0],[1,15,21,0],[0,11,21,0],[0,12,19,0],[1,6,34,0],[0,2,32,0],[0,5,39,0],[1,6,22,0],[0,5,39,0],[0,5,24,0],[0,3,22,0],[1,6,25,0],[0,3,36,0],[0,3,28,0],[0,3,27,0],[0,16,19,0],[0,3,20,0],[1,7,25,0],[0,2,18,1],[0,3,26,0],[0,5,25,0],[0,16,21,0],[0,11,47,0],[1,6,40,0],[0,16,19,0],[0,5,28,0],[0,3,28,0],[0,3,34,0],[0,1,22,0],[0,3,20,0],[0,9,30,1],[0,5,37,0],[1,4,48,0],[0,5,18,1],[0,5,22,0],[0,20,31,1],[0,1,30,0],[0,2,23,1],[1,15,39,0],[0,25,24,1],[1,6,27,0],[0,2,18,0],[1,6,51,0],[1,7,20,0],[1,6,34,0],[1,15,41,0],[1,6,48,0],[1,6,53,0],[1,6,38,0],[1,6,41,0],[0,3,31,0],[1,6,45,0],[1,6,50,0],[0,1,27,0],[0,3,45,0],[0,17,28,1],[1,6,36,0],[0,1,27,0],[0,16,25,0],[0,9,27,1],[1,7,20,0],[1,7,20,0],[1,6,20,0],[0,8,22,1],[0,13,22,0],[0,3,24,0],[1,6,19,0],[0,8,26,1],[0,10,27,0],[0,1,29,0],[0,1,21,0],[1,6,31,0],[0,1,22,0],[0,8,20,1],[0,12,29,0],[0,11,30,0],[0,3,27,0],[0,3,23,0],[0,12,22,0],[0,2,20,0],[0,5,23,0],[0,11,21,0],[0,11,19,0],[0,1,19,0],[0,8,23,1],[1,7,23,0],[1,15,22,0],[0,16,31,0],[1,6,33,0],[1,6,36,0],[1,7,38,0],[0,3,30,0],[0,5,19,0],[0,3,23,0],[0,3,21,0],[0,3,21,0],[0,11,25,0],[0,11,21,0],[0,3,26,0],[1,7,27,0],[1,7,27,0],[0,12,25,0],[0,10,20,0],[0,13,22,0],[0,1,22,0],[0,17,23,0],[1,6,16,0],[0,9,22,0],[0,3,19,0],[0,12,20,0],[0,9,31,0],[0,16,19,0],[1,6,17,0],[0,12,24,0],[0,13,23,1],[1,4,19,0],[1,4,19,0],[1,7,24,0],[0,11,18,0],[0,11,22,0],[0,16,19,0],[0,5,22,0],[1,6,19,0],[0,11,17,0],[0,12,18,0],[0,1,31,0],[1,7,24,0],[0,2,25,1],[0,3,41,0],[0,9,25,0],[0,1,23,0],[1,6,21,0],[1,6,42,0],[0,3,24,0],[0,16,41,0],[1,6,35,0],[1,4,48,0],[1,4,48,0],[0,2,42,0],[0,12,24,1],[0,13,24,1],[1,6,23,0],[0,3,21,0],[0,2,21,0],[0,0,20,0],[0,3,28,0],[0,3,19,0],[0,12,27,0],[0,12,20,0],[0,0,20,0],[0,12,24,0],[0,3,21,0],[0,12,19,0],[0,9,21,0],[1,6,22,0],[0,14,28,1],[0,12,19,0],[0,5,19,0],[0,11,21,0],[0,9,21,0],[0,17,18,1],[0,5,18,0],[0,3,37,0],[0,16,19,0],[1,6,17,0],[0,11,18,0],[0,1,22,0],[0,12,20,0],[0,11,21,0],[0,5,22,0],[0,9,22,0],[0,3,25,0],[0,11,19,0],[0,3,20,0],[0,17,25,1],[1,7,32,0],[0,1,41,0],[0,9,24,0],[0,5,25,0],[0,5,23,0],[1,6,24,0],[1,6,24,0],[0,3,24,0],[1,6,19,0],[0,3,19,0],[1,6,22,0],[1,6,18,0],[0,3,20,0],[1,6,18,0],[0,3,20,0],[0,3,21,0],[1,6,19,0],[0,9,22,0],[0,3,23,0],[0,11,19,0],[0,16,27,0],[0,3,21,0],[0,12,20,0],[0,3,19,0],[0,3,24,0],[0,1,21,0],[1,4,19,0],[1,4,19,0],[1,6,46,0],[0,3,25,0],[1,6,19,0],[0,3,32,0],[0,3,22,0],[0,3,25,0],[0,16,19,0],[1,15,40,0],[1,15,23,0],[0,3,20,0],[1,6,27,0],[0,9,48,0],[1,15,22,0],[0,3,19,0],[0,2,34,0],[0,12,28,1],[0,5,23,0],[0,1,22,0],[0,9,35,1],[0,3,24,0],[0,12,27,0],[0,3,41,0],[1,6,50,0],[0,3,36,0],[1,6,55,0],[0,3,45,0],[1,6,32,0],[0,12,27,0],[0,3,29,0],[0,11,28,0],[1,6,19,0],[0,3,20,0],[1,23,41,1],[1,6,29,0],[0,3,43,0],[1,7,53,0],[1,7,53,0],[0,9,20,0],[1,6,33,0],[0,1,24,0],[0,11,24,0],[0,1,24,0],[0,21,26,0],[1,7,22,0],[1,4,22,0],[1,4,22,0],[1,6,18,0],[0,2,19,0],[0,1,22,0],[0,1,30,0],[0,5,28,0],[0,2,19,0],[0,16,18,0],[0,9,25,0],[0,12,27,0],[0,3,22,0],[0,16,18,0],[0,14,25,1],[1,6,20,0],[0,16,19,0],[0,10,19,0],[1,6,24,0],[0,5,18,1],[0,3,24,0],[0,3,20,0],[0,3,38,0],[0,1,31,0],[0,12,18,0],[1,7,44,0],[0,1,40,0],[1,15,24,0],[0,1,25,0],[0,3,29,0],[1,6,33,0],[0,11,25,0],[0,5,18,0],[0,3,40,0],[0,9,24,0],[1,15,20,0],[0,16,18,0],[0,11,25,0],[0,3,23,0],[0,12,21,0],[0,20,35,1],[0,10,22,0],[0,3,21,0],[0,3,24,0],[0,3,19,0],[1,6,20,0],[1,6,19,0],[1,6,34,0],[0,9,22,0],[0,3,18,0],[0,12,22,0],[0,3,25,0],[1,6,21,0],[0,3,26,0],[0,9,42,0],[0,21,20,0],[0,1,21,0],[0,2,32,0],[0,1,22,0],[0,3,22,0],[0,5,20,0],[0,11,20,0],[0,3,26,0],[0,1,21,0],[0,1,23,0],[0,12,20,0],[0,5,20,0],[0,11,30,0],[1,6,29,0],[1,6,18,0],[1,15,22,0],[1,4,22,0],[1,4,22,0],[1,6,25,0],[1,6,46,0],[1,15,25,0],[0,0,19,0],[0,10,18,0],[0,9,24,0],[0,12,20,0],[0,5,28,0],[0,12,26,0],[0,12,22,0],[1,7,22,0],[1,7,22,0],[0,3,20,0],[0,2,30,0],[1,7,30,0],[0,10,43,0],[1,6,23,0],[0,16,19,0],[0,16,21,0],[0,12,20,0],[0,3,23,0],[0,3,31,0],[1,7,31,0],[1,7,31,0],[0,11,20,0],[0,16,19,0],[0,1,26,0],[1,7,25,0],[1,6,19,0],[0,12,21,0],[0,5,25,0],[0,17,22,1],[0,1,20,0],[0,11,19,0],[0,5,18,0],[0,11,19,0],[0,16,20,0],[0,3,31,0],[1,6,18,0],[1,6,43,0],[0,9,22,0],[0,9,22,0],[0,3,21,0],[0,5,27,0],[0,16,23,0],[1,7,18,0],[1,7,18,0],[1,7,25,0],[1,7,25,0],[0,2,23,0],[0,3,24,0],[0,3,23,0],[0,3,24,0],[0,16,19,0],[0,11,19,0],[0,16,34,0],[0,3,20,0],[1,6,18,0],[0,12,22,0],[0,12,18,1],[0,3,22,0],[0,3,23,0],[1,6,32,0],[1,7,20,0],[0,10,22,0],[0,9,18,1],[0,2,21,0],[0,8,20,1],[0,12,22,0],[0,3,21,0],[0,3,21,0],[1,6,17,0],[0,9,18,0],[0,2,22,0],[0,1,23,0],[0,12,21,0],[1,7,18,0],[1,7,18,0],[1,4,21,0],[0,3,20,0],[1,6,16,0],[0,5,18,0],[0,16,20,0],[0,3,32,0],[0,5,20,0],[0,3,20,0],[0,3,20,0],[0,17,31,1],[1,6,47,0],[1,15,20,0],[1,7,53,0],[1,7,53,0],[1,7,24,0],[0,9,18,0],[0,8,24,1],[0,2,23,0],[0,1,20,0],[0,3,20,0],[0,0,30,0],[1,6,41,0],[0,0,62,0],[0,10,51,0],[0,12,32,0],[0,16,18,0],[0,3,30,0],[1,6,17,0],[0,1,23,0],[0,12,20,0],[0,3,24,0],[0,5,33,1],[0,5,25,0],[1,4,35,0],[1,4,35,0],[0,5,44,0],[1,6,32,0],[0,3,20,0],[0,3,35,0],[1,6,44,0],[1,6,28,0],[1,6,24,0],[1,7,24,0],[1,7,24,0],[0,14,38,1],[0,5,26,0],[0,3,27,0],[0,3,19,0],[0,0,21,0],[1,6,21,0],[1,6,40,0],[0,9,26,0],[1,7,38,0],[1,7,38,0],[0,3,28,0],[0,9,32,0],[0,12,22,0],[0,12,22,0],[1,6,22,0],[0,11,20,0],[0,12,35,0],[1,6,30,0],[1,4,36,0],[0,3,45,0],[1,6,41,0],[0,3,26,0],[1,6,null,0],[0,9,24,0],[0,12,21,0],[1,6,48,0],[0,5,40,0],[0,1,34,0],[0,9,22,0],[0,3,20,0],[1,7,26,0],[1,7,26,0],[1,7,29,0],[1,6,40,0],[0,12,34,0],[0,9,27,0],[1,7,25,0],[0,17,22,0],[0,11,23,0],[0,3,26,0],[1,7,26,0],[1,7,26,0],[0,5,26,1],[0,5,20,1],[0,17,24,1],[0,5,22,0],[0,3,22,0],[0,9,20,0],[0,9,24,0],[0,12,23,0],[0,3,25,0],[0,11,18,0],[0,0,27,1],[0,3,33,0],[1,6,28,0],[0,1,26,0],[0,11,26,0],[0,9,22,0],[0,2,27,0],[0,1,33,0],[0,3,35,0],[1,15,30,0],[0,5,28,0],[1,7,34,0],[1,7,34,0],[1,4,31,0],[1,4,31,0],[0,0,18,1],[0,11,32,0],[0,22,27,1],[1,7,32,0],[0,1,23,0],[0,0,19,0],[0,11,29,0],[0,3,34,0],[0,1,25,0],[1,6,18,0],[0,3,35,0],[0,12,30,0],[0,3,31,0],[0,3,33,0],[0,3,30,0],[1,6,42,0],[0,3,19,0],[1,6,63,0],[1,6,null,0],[0,5,21,0],[0,1,43,0],[0,1,34,0],[0,3,27,0],[0,16,26,0],[0,1,21,0],[0,5,24,0],[0,8,25,1],[0,3,21,0],[0,1,19,0],[0,2,22,0],[1,6,30,0],[1,7,19,0],[1,7,19,0],[1,6,20,0],[1,15,24,0],[1,7,27,0],[1,7,27,0],[0,3,20,0],[1,7,25,0],[0,12,19,0],[0,16,19,0],[0,16,31,0],[1,6,44,0],[1,15,27,0],[0,3,20,0],[1,15,40,0],[1,6,24,0],[0,3,23,0],[1,6,25,0],[0,3,24,0],[0,3,24,0],[0,12,29,0],[1,6,22,0],[0,12,35,0],[0,1,28,0],[0,8,38,1],[0,16,50,0],[0,16,32,0],[0,12,27,0],[1,6,25,0],[0,3,31,0],[0,16,40,0],[0,1,52,0],[0,9,40,0],[1,7,33,0],[1,7,33,0],[0,3,43,0],[0,9,23,0],[1,6,43,0],[0,21,29,0],[0,5,22,0],[0,0,33,0],[0,16,48,0],[0,12,20,0],[0,3,33,0],[0,11,24,0],[1,6,26,0],[0,2,23,0],[1,6,30,0],[1,6,24,0],[0,3,25,0],[0,5,19,1],[1,6,28,0],[0,3,30,0],[0,17,26,1],[0,3,42,0],[1,6,42,0],[0,17,41,0],[0,3,22,0],[1,6,19,0],[0,3,22,0],[0,3,28,0],[1,6,18,0],[0,3,26,0],[0,5,19,0],[1,6,21,0],[0,3,21,0],[1,6,26,0],[1,6,18,0],[0,11,21,0],[0,2,19,0],[0,10,20,0],[0,12,21,1],[1,4,26,0],[1,4,26,0],[1,7,23,0],[1,7,23,0],[0,5,21,0],[0,16,23,0],[0,5,28,0],[0,5,23,0],[0,20,26,1],[0,1,20,0],[0,10,26,0],[1,6,18,0],[0,12,19,0],[0,0,33,1],[0,10,19,0],[1,6,38,0],[0,3,50,0],[0,10,19,0],[0,3,24,0],[0,16,29,0],[0,3,32,0],[1,6,34,0],[0,8,50,1],[0,21,49,1],[1,6,32,0],[0,1,24,0],[0,3,41,0],[0,14,32,1],[0,12,28,0],[0,3,27,0],[0,17,24,0],[0,2,23,0],[1,15,38,0],[1,6,35,0],[0,9,19,0],[0,13,27,0],[1,6,23,0],[0,1,25,0],[1,6,20,0],[1,7,22,0],[0,2,33,0],[0,12,23,0],[0,2,22,0],[1,6,17,0],[0,3,23,0],[0,3,20,0],[0,3,21,0],[0,9,18,0],[1,6,34,0],[0,3,34,0],[0,1,22,0],[0,9,24,0],[0,16,19,0],[0,13,25,0],[1,4,27,0],[1,4,27,0],[0,5,21,0],[0,11,21,0],[0,5,28,1],[0,3,18,0],[0,3,34,0],[1,6,44,0],[0,3,35,0],[0,3,29,0],[0,3,18,0],[1,15,18,0],[1,6,23,0],[0,1,22,0],[1,6,22,0],[1,6,23,0],[1,6,18,0],[1,15,23,0],[0,0,20,0],[0,13,25,0],[0,12,20,0],[0,3,26,0],[0,3,22,0],[1,6,16,0],[0,3,24,0],[1,4,21,0],[1,4,21,0],[0,12,22,0],[0,12,23,0],[1,4,23,0],[1,4,23,0],[1,6,21,0],[0,3,19,0],[1,6,20,0],[1,6,19,0],[0,3,24,0],[0,5,24,0],[0,9,23,1],[0,3,21,0],[0,2,23,0],[0,12,21,0],[0,3,20,0],[1,6,18,0],[1,6,23,0],[0,3,25,0],[1,6,30,0],[0,16,27,0],[0,11,22,0],[0,3,19,0],[0,10,24,1],[1,6,28,0],[1,6,26,0],[0,1,24,0],[1,6,24,0],[0,5,25,0],[0,12,27,0],[0,2,31,0],[0,5,38,0],[1,6,29,0],[1,6,29,0],[0,3,33,0],[0,9,28,0],[0,16,19,0],[1,6,22,0],[0,3,20,0],[1,7,20,0],[1,7,20,0],[0,16,24,0],[0,1,24,0],[1,6,43,0],[0,1,18,0],[0,3,28,0],[0,1,47,0],[0,10,41,1],[0,11,20,0],[0,10,38,0],[0,3,29,0],[0,5,21,0],[0,3,31,0],[0,12,26,0],[0,3,30,0],[0,3,29,0],[0,1,18,0],[0,9,20,1],[0,5,22,1],[0,3,24,0],[0,3,23,0],[1,6,29,0],[0,9,19,0],[0,11,22,0],[0,5,33,0],[0,11,20,0],[1,6,20,0],[0,9,20,0],[0,12,19,0],[0,16,25,0],[1,6,27,0],[0,2,21,0],[0,1,18,0],[0,1,29,0],[0,12,19,0],[0,1,21,0],[0,1,20,0],[0,5,23,0],[0,3,20,0],[0,2,24,0],[0,3,24,0],[0,5,20,0],[1,15,23,0],[0,5,21,0],[0,21,26,0],[0,16,29,0],[1,7,25,0],[1,7,25,0],[0,3,32,0],[0,11,26,0],[1,6,31,0],[1,4,44,0],[0,5,19,1],[0,5,21,1],[0,2,24,0],[1,6,20,0],[0,3,23,0],[0,5,19,0],[0,5,20,0],[0,12,22,0],[0,16,21,0],[0,3,21,0],[0,3,21,0],[0,3,29,0],[0,9,25,0],[1,6,19,0],[0,5,22,0],[0,5,20,0],[0,9,20,1],[1,6,19,0],[0,12,19,0],[0,2,22,0],[1,6,22,0],[0,3,31,0],[1,7,19,0],[0,3,31,0],[1,6,24,0],[1,6,30,0],[0,9,25,0],[1,6,46,0],[0,3,25,0],[0,11,18,0],[1,6,23,0],[1,4,28,0],[0,3,32,0],[0,2,20,1],[0,10,25,0],[1,6,25,0],[0,1,21,0],[0,3,21,0],[1,6,23,0],[0,12,21,0],[0,12,18,0],[0,3,32,0],[0,3,28,0],[1,6,22,0],[0,16,19,0],[1,6,19,0],[0,9,19,0],[0,10,25,0],[1,7,19,0],[1,7,19,0],[0,9,32,0],[0,3,21,0],[0,0,31,0],[0,3,22,0],[1,6,35,0],[0,0,19,0],[0,11,26,0],[0,2,21,0],[0,2,29,0],[1,6,25,0],[0,12,21,0],[1,6,25,0],[0,2,22,0],[1,6,34,0],[0,3,29,0],[0,2,22,0],[0,2,24,0],[0,12,24,0],[0,1,25,0],[1,6,26,0],[0,20,28,1],[0,11,29,0],[0,3,27,0],[1,6,29,0],[0,1,24,0],[0,3,28,0],[1,6,22,0],[0,5,19,0],[0,5,23,0],[0,12,20,0],[0,5,22,0],[0,11,20,0],[0,9,23,0],[0,12,20,0],[0,9,22,0],[0,3,27,0],[1,6,37,0],[1,6,26,0],[0,5,20,0],[0,11,28,0],[0,0,25,0],[0,3,23,0],[1,7,29,0],[1,7,29,0],[0,16,18,0],[0,5,22,0],[0,3,20,0],[0,5,21,0],[0,3,18,0],[0,3,21,0],[0,1,24,0],[1,15,38,0],[0,5,22,0],[0,0,25,1],[0,16,18,0],[0,16,19,0],[0,12,23,0],[1,6,20,0],[0,12,20,0],[1,7,23,0],[1,6,45,0],[0,5,21,0],[0,11,22,0],[0,12,28,0],[0,1,28,0],[0,3,25,0],[0,3,32,0],[1,6,22,0],[0,3,23,0],[0,9,23,1],[0,3,23,0],[0,3,23,0],[0,3,27,0],[0,5,22,0],[1,6,50,0],[1,6,23,0],[0,3,44,0],[0,3,24,0],[0,10,30,0],[1,6,23,0],[1,6,22,0],[0,25,54,1],[0,3,25,0],[0,3,27,0],[0,11,35,0],[1,15,32,0],[0,16,25,0],[0,2,28,0],[1,7,34,0],[1,7,34,0],[1,6,34,0],[1,6,23,0],[0,2,27,0],[0,3,24,0],[0,12,19,0],[0,3,21,0],[0,2,28,0],[1,7,24,0],[0,0,26,0],[0,5,26,0],[1,15,19,0],[1,7,31,0],[1,7,31,0],[0,5,27,0],[0,0,27,0],[0,11,21,0],[0,16,21,0],[1,6,19,0],[0,3,25,0],[0,5,25,0],[0,9,28,0],[0,3,21,0],[0,5,22,0],[0,2,18,0],[0,10,29,0],[1,6,21,0],[1,7,29,0],[0,3,22,0],[0,3,21,0],[0,16,18,0],[1,7,20,0],[1,7,20,0],[0,5,20,0],[0,5,24,0],[0,2,18,0],[0,3,32,0],[0,3,19,0],[0,0,20,1],[0,5,20,0],[1,4,28,0],[0,2,23,0],[0,2,25,0],[0,1,22,0],[0,1,24,0],[0,8,23,1],[0,11,18,0],[0,11,23,0],[0,9,21,0],[1,6,42,0],[0,3,34,0],[0,10,20,0],[1,6,40,0],[0,12,18,0],[0,16,20,0],[1,4,30,0],[1,4,30,0],[1,7,38,0],[0,17,22,1],[0,1,28,0],[0,3,27,0],[0,12,21,0],[0,3,41,0],[1,6,33,0],[1,6,23,0],[0,5,40,0],[0,3,19,0],[0,12,20,0],[0,12,22,0],[0,3,20,0],[0,9,23,1],[0,3,47,0],[0,3,22,0],[0,16,30,0],[0,2,22,0],[0,12,28,0],[1,6,30,0],[0,5,35,0],[0,5,28,0],[0,9,23,0],[0,5,26,0],[0,5,25,0],[0,11,43,0],[0,5,19,0],[1,6,28,0],[0,3,32,0],[0,10,19,0],[0,10,20,1],[0,21,26,1],[0,16,18,0],[1,6,26,0],[0,3,21,0],[0,16,19,0],[0,16,30,0],[0,12,19,0],[1,6,30,0],[1,6,30,0],[0,2,35,0],[1,6,25,0],[0,12,22,0],[0,3,27,0],[0,3,29,0],[0,3,19,0],[0,9,27,0],[0,3,20,0],[0,1,28,0],[0,10,35,0],[0,5,19,0],[1,6,29,0],[0,12,20,0],[1,6,29,0],[0,9,25,0],[0,10,22,0],[0,9,26,0],[0,1,19,0],[0,9,37,0],[1,6,22,0],[1,6,22,0],[0,1,20,0],[1,6,31,0],[0,2,29,0],[1,6,44,0],[1,6,18,0],[0,14,21,1],[1,6,36,0],[0,11,18,0],[0,5,21,0],[0,16,32,0],[0,9,30,0],[0,12,27,0],[0,12,23,0],[0,21,22,0],[0,5,29,0],[0,5,29,1],[0,1,45,0],[1,7,42,0],[0,10,30,0],[1,6,29,0],[1,15,37,0],[0,12,24,0],[0,10,20,0],[1,6,17,0],[0,3,21,0],[1,6,33,0],[1,6,26,0],[1,6,26,0],[0,12,25,0],[0,3,26,0],[0,9,22,0],[1,6,32,0],[0,17,22,1],[0,1,22,0],[0,21,21,0],[0,12,22,0],[0,16,31,0],[0,3,24,0],[0,16,19,0],[0,5,24,0],[0,17,24,0],[0,12,24,0],[0,12,20,0],[1,15,48,0],[1,6,44,0],[1,7,49,0],[1,6,41,0],[0,0,35,0],[1,6,34,0],[0,16,19,0],[1,6,27,0],[1,6,20,0],[1,7,21,0],[1,7,21,0],[0,12,25,0],[0,1,23,0],[0,3,23,0],[0,1,27,0],[0,3,19,0],[1,6,18,0],[1,6,18,0],[0,3,21,0],[1,7,28,0],[0,8,22,1],[0,9,24,0],[0,5,52,0],[0,3,20,0],[0,3,41,0],[1,6,44,0],[1,6,44,0],[1,6,27,0],[1,4,43,0],[1,4,43,0],[0,9,27,0],[0,12,32,0],[1,6,32,0],[0,5,21,0],[0,18,34,1],[1,6,35,0],[1,6,34,0],[0,9,25,0],[1,6,23,0],[0,3,22,0],[1,6,24,0],[0,16,19,0],[0,9,23,0],[0,3,27,0],[0,1,41,0],[0,10,40,0],[0,5,18,0],[0,3,18,0],[1,6,25,0],[1,6,24,0],[0,10,18,0],[0,5,26,0],[0,3,20,0],[0,5,20,0],[1,15,20,0],[0,16,49,0],[0,18,43,1],[0,3,28,0],[0,3,35,0],[0,16,26,0],[1,4,54,0],[1,4,54,0],[0,3,26,0],[1,6,53,0],[0,11,41,0],[0,1,45,0],[0,12,43,0],[0,1,56,0],[0,1,37,0],[0,18,43,1],[0,11,34,0],[1,6,17,0],[0,12,29,0],[0,11,23,0],[0,3,26,0],[1,6,26,0],[0,1,30,0],[1,6,20,0],[0,1,21,0],[1,6,42,0],[0,1,29,0],[1,6,49,0],[0,9,44,0],[0,3,37,0],[1,6,36,0],[0,3,26,0],[1,4,34,0],[1,4,34,0],[0,13,33,0],[1,6,18,0],[1,6,18,0],[1,6,17,0],[1,7,17,0],[1,7,17,0],[0,11,19,0],[0,10,19,0],[0,1,21,0],[0,12,19,0],[1,6,18,0],[0,5,20,0],[1,6,18,0],[0,5,18,0],[0,3,28,0],[0,3,20,0],[0,9,23,0],[0,5,20,0],[0,5,20,1],[0,2,23,0],[1,6,18,0],[0,9,35,0],[0,11,62,0],[0,11,26,0],[0,3,29,0],[0,21,25,1],[1,6,37,0],[1,15,39,0],[1,6,45,0],[1,6,40,0],[1,6,54,0],[1,6,47,0],[0,12,31,0],[0,11,21,0],[0,16,22,0],[1,6,19,0],[0,3,20,0],[0,11,20,0],[0,12,23,0],[1,6,18,0],[0,16,26,0],[1,7,20,0],[0,9,19,0],[0,3,20,0],[0,2,21,0],[0,8,20,1],[0,5,20,0],[0,16,20,0],[1,6,22,0],[0,10,20,0],[0,10,20,0],[0,1,21,0],[1,7,20,0],[0,5,21,0],[0,12,22,0],[0,9,25,0],[1,6,20,0],[1,6,16,0],[0,0,18,1],[1,15,23,0],[0,3,21,0],[0,11,24,0],[0,2,26,0],[1,6,21,0],[0,12,20,0],[0,11,21,0],[0,16,22,0],[0,3,18,0],[0,1,22,0],[1,6,27,0],[0,3,21,0],[0,3,23,0],[1,7,19,0],[0,12,20,0],[0,9,19,0],[0,1,21,0],[0,3,21,0],[0,5,21,0],[1,6,18,0],[0,1,19,0],[0,5,21,0],[0,5,22,0],[0,12,20,0],[0,11,19,0],[0,3,19,0],[0,16,26,0],[1,4,19,0],[1,4,19,0],[0,3,24,0],[0,12,24,0],[0,12,25,0],[1,6,18,0],[0,5,20,0],[0,9,24,0],[0,3,25,0],[1,15,20,0],[0,12,18,0],[0,5,20,0],[0,16,26,0],[1,6,52,0],[1,6,49,0],[0,5,21,0],[1,6,57,0],[1,6,39,0],[0,3,19,0],[1,6,24,0],[0,12,20,0],[1,6,31,0],[1,6,17,0],[1,6,24,0],[1,6,19,0],[0,3,18,0],[0,3,23,0],[0,5,23,0],[0,16,34,0],[0,3,20,0],[0,5,44,0],[0,3,18,0],[1,6,49,0],[0,1,20,0],[1,7,25,0],[1,7,25,0],[0,5,19,0],[0,9,21,0],[0,10,54,1],[0,3,22,0],[0,0,31,0],[0,3,33,0],[1,6,35,0],[0,16,19,0],[0,11,20,0],[0,1,23,0],[1,4,41,0],[1,4,41,0],[1,23,45,1],[0,3,20,0],[1,7,21,0],[1,7,26,0],[0,16,19,0],[0,21,25,0],[0,3,20,0],[1,6,18,0],[0,3,20,0],[0,5,23,0],[0,0,19,0],[0,16,19,0],[1,6,50,0],[0,12,20,0],[1,6,18,0],[0,3,21,0],[0,2,22,0],[0,10,25,0],[1,7,19,0],[1,7,19,0],[0,10,25,1],[0,12,19,0],[0,2,21,0],[0,12,20,0],[0,3,21,0],[1,6,63,0],[1,6,52,0],[0,3,39,0],[1,6,51,0],[0,11,26,0],[0,3,24,0],[0,3,22,0],[0,3,20,0],[0,12,20,0],[0,16,22,0],[0,9,22,0],[1,6,20,0],[1,15,18,0],[1,15,26,0],[0,5,24,0],[0,16,37,0],[1,6,39,0],[0,3,23,0],[0,11,29,0],[1,4,35,0],[1,4,35,0],[1,6,19,0],[0,10,18,0],[0,3,30,0],[0,3,19,0],[0,3,25,0],[0,12,20,0],[0,13,37,1],[1,6,37,0],[0,3,26,0],[1,4,27,0],[0,3,48,0],[1,6,40,0],[0,0,20,1],[0,3,21,0],[0,2,20,0],[1,6,21,0],[0,0,23,0],[1,6,19,0],[0,2,22,1],[1,7,23,0],[1,7,23,0],[0,1,19,0],[0,3,19,0],[0,1,18,0],[0,17,24,0],[1,6,45,0],[0,16,23,0],[1,6,31,0],[0,1,60,0],[0,16,21,0],[0,12,22,0],[0,0,23,1],[0,12,36,0],[1,6,51,0],[1,6,53,0],[1,6,41,0],[0,3,37,0],[1,6,45,0],[1,6,44,0],[0,1,20,0],[0,2,21,0],[0,5,20,0],[1,6,17,0],[1,7,19,0],[0,3,19,0],[0,16,21,0],[0,9,20,0],[0,5,25,0],[0,12,27,0],[1,6,16,0],[0,12,26,0],[1,15,32,0],[1,7,18,0],[1,7,18,0],[0,12,22,0],[0,9,25,0],[0,2,30,0],[0,1,22,0],[0,21,27,0],[0,10,23,0],[1,7,30,0],[0,5,18,1],[1,7,23,0],[1,7,23,0],[0,16,19,0],[0,25,27,1],[0,16,25,0],[1,6,18,0],[0,21,29,1],[0,9,31,0],[0,5,32,0],[0,3,30,0],[0,3,37,0],[1,23,32,1],[0,11,33,0],[0,12,28,0],[0,9,27,0],[0,11,23,0],[1,6,19,0],[1,7,50,0],[0,1,29,0],[0,11,26,0],[0,5,24,0],[1,6,46,0],[0,3,20,0],[1,6,32,0],[0,10,19,1],[0,3,21,0],[1,7,18,0],[1,6,30,0],[0,3,22,0],[0,5,22,0],[0,8,24,1],[0,11,22,0],[0,3,20,0],[1,6,17,0],[1,6,35,0],[1,6,45,0],[0,20,28,1],[0,3,26,0],[1,6,29,0],[0,3,22,0],[0,3,21,0],[1,6,17,0],[0,3,21,0],[0,2,21,0],[0,8,27,1],[1,6,29,0],[1,7,22,0],[1,7,22,0],[0,3,22,0],[0,16,20,0],[1,6,17,0],[0,5,25,0],[0,3,26,0],[0,11,18,0],[0,3,23,0],[0,9,19,0],[1,7,29,0],[1,6,17,0],[1,7,24,0],[1,7,25,0],[1,6,41,0],[0,9,23,0],[0,11,28,0],[0,3,23,0],[1,6,24,0],[1,7,20,0],[1,7,20,0],[0,10,35,0],[0,3,27,0],[1,6,20,0],[0,10,19,0],[1,6,37,0],[1,6,18,0],[0,9,18,0],[1,6,36,0],[0,3,24,0],[0,5,21,0],[0,0,20,0],[0,0,20,0],[0,5,23,1],[0,10,23,0],[0,11,19,0],[0,3,23,0],[0,2,26,0],[0,20,44,1],[0,16,43,0],[0,3,27,0],[0,12,23,0],[1,6,44,0],[0,3,21,0],[1,6,21,0],[0,21,29,0],[1,23,38,1],[0,9,38,0],[0,12,20,0],[0,3,24,0],[0,16,22,0],[0,3,19,0],[0,5,25,0],[0,3,27,0],[0,3,37,0],[1,6,40,0],[1,6,43,0],[0,10,46,0],[1,6,38,0],[0,5,37,0],[0,1,24,0],[0,16,32,0],[0,16,36,0],[0,3,23,0],[0,1,22,0],[0,2,19,1],[0,12,28,0],[0,16,19,0],[0,3,30,0],[0,12,27,0],[0,16,28,0],[0,20,29,1],[0,9,21,0],[0,3,24,0],[1,6,21,0],[0,16,18,0],[1,6,25,0],[0,13,36,0],[0,13,18,1],[0,12,20,0],[1,6,25,0],[1,6,38,0],[0,3,24,0],[0,10,30,0],[1,6,19,0],[1,6,28,0],[0,5,24,0],[1,6,26,0],[1,6,30,0],[0,3,28,0],[0,1,29,0],[0,3,22,0],[0,5,19,0],[0,3,28,0],[1,7,19,0],[1,7,19,0],[1,7,36,0],[0,1,24,0],[0,16,24,0],[0,3,27,0],[1,6,22,0],[1,6,35,0],[1,6,31,0],[0,3,44,0],[0,1,36,0],[0,12,24,0],[0,12,20,0],[0,10,39,1],[0,3,23,0],[0,12,18,0],[0,17,22,0],[0,5,20,0],[1,6,19,0],[0,5,18,0],[0,16,19,0],[0,3,20,0],[1,6,20,0],[0,0,24,0],[0,13,28,1],[1,6,21,0],[0,24,17,1],[0,13,23,1],[0,17,18,1],[0,8,27,1],[0,10,29,0],[0,16,47,0],[1,4,29,0],[1,4,29,0],[0,3,30,0],[0,11,23,0],[0,12,39,0],[0,8,23,1],[0,3,25,0],[1,6,34,0],[1,6,41,0],[0,2,29,1],[0,3,41,0],[0,11,22,0],[0,3,21,0],[0,21,26,0],[1,6,26,0],[0,9,20,0],[0,5,20,0],[0,11,22,0],[1,7,19,0],[1,7,19,0],[0,8,26,1],[1,6,29,0],[0,11,23,0],[0,9,19,0],[0,1,41,0],[0,5,23,0],[0,1,22,0],[0,11,19,0],[0,12,26,0],[1,6,41,0],[1,7,37,0],[1,7,37,0],[0,1,39,0],[1,15,35,0],[0,3,51,0],[0,11,25,0],[0,12,23,0],[1,6,34,0],[0,3,30,0],[0,3,25,0],[1,7,45,0],[1,7,45,0],[0,3,18,0],[0,12,22,0],[1,6,31,0],[0,16,24,0],[0,16,49,0],[1,15,17,0],[0,16,27,0],[0,5,24,0],[1,15,20,0],[1,6,19,0],[0,5,22,0],[1,4,30,0],[1,4,30,0],[0,8,22,1],[0,2,32,0],[0,16,19,0],[0,12,23,0],[0,2,27,0],[0,3,29,0],[0,5,22,0],[0,11,20,0],[0,1,29,0],[1,15,22,0],[0,3,35,0],[0,11,43,0],[0,9,21,0],[0,12,20,0],[0,11,22,0],[1,4,40,0],[1,4,40,0],[0,3,41,0],[0,12,20,0],[0,3,28,0],[0,3,45,0],[0,9,41,0],[1,6,42,0],[1,15,23,0],[0,2,37,0],[0,14,40,1],[0,13,35,1],[1,6,27,0],[1,6,25,0],[1,6,38,0],[0,1,39,0],[0,1,25,0],[0,3,34,0],[0,8,22,1],[0,0,37,0],[0,3,24,0],[0,0,21,0],[0,11,35,0],[0,11,19,0],[0,21,35,1],[0,3,24,0],[1,15,22,0],[0,16,25,0],[0,12,19,0],[0,16,25,0],[1,7,22,0],[1,7,22,0],[0,11,21,0],[0,12,21,0],[0,2,22,1],[0,5,24,0],[0,3,18,0],[0,3,23,0],[0,3,24,0],[0,3,23,0],[1,6,27,0],[1,7,38,0],[0,9,25,0],[1,7,19,0],[1,7,19,0],[0,13,29,0],[0,3,31,0],[0,17,32,0],[0,3,30,0],[1,6,37,0],[1,6,31,0],[0,16,30,0],[0,3,30,0],[0,9,27,0],[0,16,37,0],[1,7,19,0],[0,13,43,0],[0,3,19,0],[0,5,23,0],[0,11,19,0],[0,5,20,0],[0,5,21,0],[0,16,24,0],[0,3,24,0],[0,12,20,0],[0,3,41,0],[0,9,21,0],[0,16,23,0],[0,16,26,0],[0,3,23,0],[0,9,32,0],[0,12,23,0],[0,9,31,0],[1,6,43,0],[0,3,25,0],[0,5,22,0],[0,16,24,0],[0,16,43,0],[0,9,36,1],[0,3,35,0],[0,0,19,0],[0,1,23,0],[0,3,24,0],[0,16,28,0],[0,11,26,0],[0,5,33,0],[0,5,24,1],[0,5,33,1],[0,5,25,1],[0,2,28,0],[0,9,26,0],[1,7,33,0],[1,7,33,0],[0,3,28,0],[0,12,19,0],[0,9,23,0],[0,3,20,0],[0,21,24,1],[0,3,21,0],[0,16,31,0],[0,5,19,0],[0,3,29,0],[1,6,32,0],[0,1,20,0],[0,3,22,0],[1,6,22,0],[0,12,29,0],[1,6,20,0],[1,6,24,0],[1,6,17,0],[0,2,20,0],[0,5,23,0],[0,12,27,1],[0,13,27,0],[0,3,20,0],[0,3,29,0],[1,6,19,0],[0,11,20,0],[0,3,20,0],[0,3,23,0],[0,3,19,0],[0,5,20,0],[0,16,21,0],[0,1,20,0],[0,0,22,0],[0,1,35,0],[1,23,30,1],[0,9,48,0],[1,6,46,0],[1,6,34,0],[0,3,40,0],[0,9,45,0],[1,15,43,0],[0,1,40,0],[0,9,24,0],[0,24,19,1],[1,6,30,0],[0,10,40,0],[0,9,21,0],[1,6,43,0],[0,3,31,0],[0,3,20,0],[0,3,25,0],[1,6,37,0],[0,3,40,0],[0,11,52,0],[0,1,22,0],[0,1,19,0],[1,15,22,0],[0,1,23,0],[0,5,22,0],[1,6,47,0],[0,2,27,0],[0,5,20,0],[0,12,20,0],[0,0,44,0],[1,6,28,0],[1,6,42,0],[0,9,48,0],[0,3,38,0],[1,6,22,0],[0,1,32,0],[0,9,22,0],[1,6,22,0],[0,3,45,0],[0,3,30,0],[0,3,28,0],[1,7,22,0],[1,7,22,0],[1,6,49,0],[1,6,28,0],[1,6,35,0],[0,3,28,0],[1,6,52,0],[1,23,60,1],[0,3,28,0],[1,15,31,0],[1,6,30,0],[0,1,21,0],[0,13,29,0],[0,12,47,1],[1,6,38,0],[0,3,51,0],[0,8,21,1],[1,6,41,0],[1,6,39,0],[0,9,54,0],[1,6,57,0],[1,15,43,0],[0,2,23,0],[0,9,34,0],[1,6,43,0],[0,1,27,0],[1,6,23,0],[0,3,30,0],[1,7,53,0],[1,4,42,0],[1,4,42,0],[0,3,20,0],[1,6,38,0],[1,6,28,0],[1,6,48,0],[0,9,48,1],[0,9,25,0],[0,2,19,0],[0,2,25,0],[0,16,32,0],[0,17,22,1],[0,12,23,0],[1,6,38,0],[0,12,22,0],[0,0,28,1],[1,7,24,0],[1,7,24,0],[0,5,26,0],[0,12,26,0],[1,6,19,0],[1,15,26,0],[0,0,30,0],[0,16,22,0],[1,6,22,0],[1,6,22,0],[1,6,28,0],[1,6,23,0],[1,23,35,1],[0,12,18,0],[0,12,21,0],[0,3,24,0],[1,6,23,0],[0,1,19,0],[0,3,27,0],[1,6,27,0],[0,1,20,0],[0,5,18,0],[1,6,30,0],[0,3,24,0],[0,3,23,0],[0,9,22,0],[0,0,29,0],[0,13,25,1],[0,11,23,0],[1,6,36,0],[0,3,37,0],[0,9,42,0],[0,5,21,1],[1,6,33,0],[0,3,25,0],[1,6,24,0],[0,0,22,0],[0,16,19,0],[0,10,22,0],[0,1,20,0],[0,0,54,1],[1,6,40,0],[0,16,58,0],[0,12,52,0],[1,7,40,0],[0,16,45,0],[1,6,40,0],[0,3,22,0],[1,4,21,0],[0,10,30,0],[1,6,22,0],[0,3,21,0],[0,20,48,1],[1,6,28,0],[0,13,32,0],[0,16,32,0],[1,6,20,0],[0,1,18,0],[0,1,18,0],[0,16,19,0],[0,3,25,0],[0,2,20,0],[0,3,22,0],[0,3,26,0],[0,13,20,0],[0,11,18,0],[0,8,20,1],[0,5,18,0],[0,3,26,0],[0,3,20,0],[0,12,22,0],[1,7,21,0],[1,7,21,0],[0,11,21,0],[0,5,21,0],[0,5,21,0],[0,12,24,0],[0,2,25,0],[1,6,33,0],[0,3,27,0],[0,9,55,0],[1,6,48,0],[0,1,56,0],[0,3,18,0],[1,7,27,0],[1,6,29,0],[1,6,20,0],[0,3,23,0],[0,5,25,0],[0,1,45,0],[1,7,36,0],[1,7,36,0],[1,6,39,0],[1,6,53,0],[1,6,24,0],[1,6,41,0],[0,0,39,0],[1,6,47,0],[1,6,43,0],[1,6,43,0],[1,4,52,0],[1,4,52,0],[0,9,44,0],[1,6,46,0],[0,3,37,0],[0,3,41,0],[1,23,45,1],[0,12,47,0],[0,3,19,0],[1,7,20,0],[1,7,20,0],[0,16,18,0],[0,16,18,0],[1,6,17,0],[0,3,22,0],[0,5,20,0],[1,6,21,0],[1,6,48,0],[0,12,57,0],[0,1,22,0],[0,3,42,0],[0,16,22,0],[0,11,21,0],[1,4,16,0],[1,15,18,0],[1,6,19,0],[0,8,22,1],[0,1,48,0],[1,6,48,0],[0,1,18,0],[1,6,23,0],[0,5,36,1],[0,3,25,0],[0,3,18,0],[1,6,25,0],[0,10,23,0],[1,7,34,0],[0,9,26,0],[0,2,29,0],[0,3,25,0],[0,16,26,0],[0,11,21,0],[1,6,20,0],[1,7,22,0],[0,3,27,0],[0,11,22,0],[0,3,25,0],[1,6,43,0],[0,16,29,0],[1,6,63,0],[1,15,26,0],[0,17,38,1],[0,12,24,0],[1,6,25,0],[0,9,19,1],[0,16,33,0],[1,6,27,0],[1,6,45,0],[1,6,15,0],[0,5,22,0],[0,3,22,0],[1,15,29,0],[1,7,24,0],[1,7,24,0],[1,7,28,0],[0,21,30,0],[1,6,20,0],[0,12,23,0],[0,3,32,0],[0,5,22,1],[1,15,35,0],[0,16,18,0],[0,9,25,0],[1,6,37,0],[0,3,29,0],[0,12,23,0],[0,2,22,0],[0,3,26,0],[1,7,27,0],[1,6,22,0],[0,3,33,0],[0,2,23,0],[0,12,23,0],[0,10,45,0],[0,5,56,0],[1,4,46,0],[1,6,45,0],[1,6,37,0],[0,3,38,0],[1,6,44,0],[0,3,31,0],[1,6,18,0],[1,6,42,0],[0,1,26,0],[0,5,27,0],[1,6,27,0],[1,7,20,0],[1,7,20,0],[1,4,30,0],[1,6,28,0],[0,12,20,0],[0,11,22,0],[0,3,23,0],[0,11,54,0],[0,10,23,0],[1,6,42,0],[0,10,18,0],[0,3,23,0],[0,3,26,0],[0,21,31,0],[0,3,26,0],[0,2,28,0],[0,0,38,1],[1,6,19,0],[1,6,29,0],[1,6,31,0],[1,6,20,0],[0,3,25,0],[1,6,22,0],[1,6,34,0],[0,3,27,0],[1,6,19,0],[0,10,30,0],[0,3,19,0],[0,12,23,0],[0,17,33,1],[0,12,27,0],[1,6,34,0],[0,1,27,0],[0,10,20,0],[1,6,18,0],[0,16,36,0],[0,3,24,0],[0,5,18,0],[1,6,25,0],[0,0,21,1],[0,9,24,0],[0,3,24,0],[0,5,24,0],[1,6,19,0],[0,9,20,0],[1,7,19,0],[1,7,19,0],[1,7,28,0],[1,7,28,0],[0,12,19,0],[1,6,35,0],[0,3,22,0],[1,4,18,0],[1,4,18,0],[0,5,18,1],[0,16,24,0],[0,16,36,0],[0,5,23,0],[1,7,18,0],[1,7,18,0],[0,8,20,1],[0,5,26,0],[0,5,22,0],[0,9,23,0],[0,14,22,1],[0,0,20,0],[0,9,35,0],[0,16,30,0],[0,2,27,0],[1,4,24,0],[0,9,33,0],[0,3,20,0],[0,3,22,0],[1,6,32,0],[0,2,33,0],[0,3,21,0],[0,3,23,0],[0,1,42,0],[0,12,29,0],[0,12,30,1],[0,1,23,0],[0,12,30,0],[0,3,23,0],[0,9,21,0],[0,13,24,0],[0,17,22,1],[1,6,23,0],[0,2,25,0],[1,4,37,0],[1,4,37,0],[0,5,22,0],[1,6,37,0],[1,15,31,0],[1,6,21,0],[0,10,44,1],[1,7,25,0],[0,3,25,0],[0,5,19,0],[1,6,49,0],[1,6,32,0],[1,6,32,0],[0,11,36,0],[0,5,26,0],[0,2,27,1],[0,1,43,0],[1,6,36,0],[0,9,42,0],[1,6,38,0],[1,6,30,0],[0,2,26,0],[1,6,35,0],[1,6,32,0],[1,6,36,0],[1,6,39,0],[1,6,23,0],[0,16,43,0],[1,15,28,0],[0,3,45,0],[0,3,35,0],[1,6,40,0],[1,15,31,0],[0,13,24,1],[0,16,27,0],[0,16,21,0],[0,1,null,0],[0,3,23,0],[0,3,19,0],[0,1,24,0],[1,6,21,0],[0,1,25,0],[0,5,22,0],[0,3,21,0],[0,16,31,0],[0,2,23,0],[0,16,20,0],[1,4,25,0],[1,4,25,0],[0,0,21,1],[0,12,24,0],[1,7,20,0],[1,6,18,0],[1,4,32,0],[1,15,20,0],[0,18,34,1],[0,12,25,0],[0,11,23,0],[0,16,20,0],[0,8,28,1],[0,16,22,0],[1,15,26,0],[0,2,20,0],[0,2,19,1],[0,1,19,0],[1,6,20,0],[0,2,22,0],[0,3,19,0],[0,3,27,0],[0,9,21,0],[0,2,24,0],[1,23,26,1],[0,12,25,0],[1,7,18,0],[0,1,24,0],[0,1,24,0],[0,3,20,0],[0,10,19,0],[1,6,21,0],[0,3,21,0],[1,7,27,0],[0,11,24,0],[0,9,24,0],[0,5,22,0],[0,3,21,0],[0,3,21,0],[0,21,28,0],[0,2,21,0],[0,1,23,0],[0,12,20,0],[0,3,21,0],[0,10,22,0],[0,16,41,0],[0,3,42,0],[0,8,19,1],[1,6,30,0],[0,12,19,0],[1,6,21,0],[0,2,37,0],[0,3,23,0],[0,16,30,0],[0,9,36,0],[0,3,28,0],[0,9,24,0],[0,1,34,0],[0,2,21,0],[0,13,41,0],[1,6,38,0],[0,9,30,0],[0,16,40,0],[0,1,24,0],[1,6,18,0],[0,9,32,0],[0,16,29,0],[0,10,40,0],[0,3,19,0],[1,6,23,0],[0,3,20,0],[0,1,47,0],[0,9,28,0],[0,3,31,0],[0,8,48,1],[0,3,28,0],[0,3,32,0],[0,10,30,0],[1,6,21,0],[0,2,18,0],[0,8,25,1],[0,11,23,0],[0,3,22,0],[0,3,20,0],[0,1,20,0],[0,12,24,0],[0,9,32,0],[0,5,23,0],[0,21,21,0],[1,6,21,0],[1,4,20,0],[1,4,24,0],[1,4,24,0],[0,11,21,0],[0,3,19,0],[0,20,24,1],[0,11,20,0],[0,3,20,0],[1,6,20,0],[0,11,20,0],[0,12,20,0],[0,9,27,0],[0,5,19,0],[0,16,20,0],[0,3,21,0],[0,9,18,1],[1,6,17,0],[0,9,20,0],[1,7,30,0],[0,2,18,0],[1,6,18,0],[0,17,22,1],[1,6,33,0],[0,11,18,0],[0,5,18,0],[0,8,20,1],[0,10,18,1],[0,3,19,0],[0,11,22,0],[1,15,32,0],[0,16,19,0],[1,6,28,0],[0,5,24,0],[0,11,43,0],[1,15,32,0],[2,26,null,0]],"quality":{"total":3325,"valid":3320,"missing":0,"invalid":1,"lowAge":4,"emptyUnit":1,"emptyCourse":1,"rawCourseVariants":26,"consolidated":9,"presencial":3076,"semipresencial":249,"coursesBoth":9}};
+
+/* ============ CLASSIFICAÇÃO ============ */
+const FAIXAS=[
+ {key:'<18',label:'Menos de 18',short:'<18',color:'#3A5BA0',lo:0,hi:17},
+ {key:'18-24',label:'18 a 24',short:'18–24',color:'#3E8CA8',lo:18,hi:24},
+ {key:'25-34',label:'25 a 34',short:'25–34',color:'#3FA795',lo:25,hi:34},
+ {key:'35-44',label:'35 a 44',short:'35–44',color:'#7FB069',lo:35,hi:44},
+ {key:'45-54',label:'45 a 54',short:'45–54',color:'#E0A458',lo:45,hi:54},
+ {key:'55-64',label:'55 a 64',short:'55–64',color:'#D9793E',lo:55,hi:64},
+ {key:'65+',label:'65 ou mais',short:'65+',color:'#B4462F',lo:65,hi:999},
+];
+const GENS=[
+ {key:'alfa',label:'Geração Alfa',sub:'Até 15 anos',color:'#5B7FD4',lo:0,hi:15},
+ {key:'z',label:'Geração Z',sub:'16 a 29 anos',color:'#2FA4A0',lo:16,hi:29},
+ {key:'y',label:'Millennials / Y',sub:'30 a 45 anos',color:'#7FB069',lo:30,hi:45},
+ {key:'x',label:'Geração X',sub:'46 a 61 anos',color:'#E0A458',lo:46,hi:61},
+ {key:'bb',label:'Baby Boomers',sub:'62 anos ou mais',color:'#C15A3A',lo:62,hi:999},
+];
+function faixaOf(a){if(a==null)return null;for(const f of FAIXAS)if(a>=f.lo&&a<=f.hi)return f.key;return null;}
+function genOf(a){if(a==null)return null;for(const g of GENS)if(a>=g.lo&&a<=g.hi)return g.key;return null;}
+const FMAP=Object.fromEntries(FAIXAS.map(f=>[f.key,f]));
+const GMAP=Object.fromEntries(GENS.map(g=>[g.key,g]));
+
+/* ============ STATE ============ */
+let DB={units:[],courses:[],rows:[],quality:{},ref:'2026-08-11'};
+const STATE={unit:null,course:null,modalidade:null,faixas:new Set(),gens:new Set(),ageMin:0,ageMax:80};
+let charts={};
+let courseSplit=false;
+const MODS=[{k:0,label:'Presencial',color:'#2E5E8C'},{k:1,label:'Semipresencial',color:'#C77D2E'}];
+const modSuffix=m=>m===1?' · Semipresencial':m===0?' · Presencial':'';
+const shortName=(n,len=28)=>n.length>len?n.slice(0,len-1)+'…':n;
+function courseGroups(rows,minN=1){const map={};
+  rows.forEach(r=>{const key=courseSplit?(r.c+'_'+r.m):(''+r.c);
+    if(!map[key])map[key]={key,c:r.c,m:courseSplit?r.m:-1,base:DB.courses[r.c].n,u:DB.courses[r.c].u,rows:[]};
+    map[key].rows.push(r);});
+  return Object.values(map).filter(g=>g.rows.length>=minN);}
+const gLabel=(g,len=28)=>shortName(g.base,len)+modSuffix(g.m);
+
+function loadBase(raw){
+  DB.units=raw.units.slice();
+  DB.courses=raw.courses.map(c=>({...c}));
+  DB.ref=raw.ref||'2026-08-11';
+  DB.quality=raw.quality||{};
+  DB.rows=raw.rows.map(r=>{const a=r[2];return{u:r[0],c:r[1],a:a,m:(r[3]||0),fx:faixaOf(a),g:genOf(a)};});
+}
+
+/* ============ FILTER ============ */
+function filtered(){
+  return DB.rows.filter(r=>{
+    if(STATE.unit!=null && r.u!==STATE.unit)return false;
+    if(STATE.course!=null && r.c!==STATE.course)return false;
+    if(STATE.modalidade!=null && r.m!==STATE.modalidade)return false;
+    if(STATE.faixas.size && !STATE.faixas.has(r.fx))return false;
+    if(STATE.gens.size && !STATE.gens.has(r.g))return false;
+    if(r.a!=null){if(r.a<STATE.ageMin)return false; if(STATE.ageMax<80 && r.a>STATE.ageMax)return false;}
+    else{ if(STATE.faixas.size||STATE.gens.size||STATE.ageMin>0||STATE.ageMax<80) return false; }
+    return true;
+  });
+}
+const withAge=rows=>rows.filter(r=>r.a!=null);
+
+/* ============ HELPERS ============ */
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const pct=(n,d)=>d?(n/d*100):0;
+const fmt=n=>n.toLocaleString('pt-BR');
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function animateCount(el,to,dur=850){const from=0;const st=performance.now();const step=now=>{const p=Math.min(1,(now-st)/dur);const e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(from+(to-from)*e));if(p<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+
+/* ============ BUILD FILTER UI ============ */
+function buildFilters(){
+  const seg=document.getElementById('unitseg');seg.innerHTML='';
+  const mkU=(label,val)=>{const b=document.createElement('button');b.textContent=label;if(val!=null)b.dataset.u=val;
+    b.onclick=()=>{STATE.unit=val;STATE.course=null;buildCourseSel();syncFilterUI();render();};seg.appendChild(b);return b;};
+  mkU('Todas',null);
+  DB.units.forEach((u,i)=>{if(u==='Não informado'&&DB.rows.filter(r=>r.u===i).length===0)return;
+    mkU(u.replace('Uni LS - CÂMPUS ','').replace('LS ','').replace('CÂMPUS ',''),i);});
+  buildCourseSel();
+  const ms=document.getElementById('modseg');ms.innerHTML='';
+  const mkM=(label,val)=>{const b=document.createElement('button');b.textContent=label;if(val!=null)b.dataset.m=val;
+    b.onclick=()=>{STATE.modalidade=val;syncFilterUI();render();};ms.appendChild(b);};
+  mkM('Todas',null);MODS.forEach(m=>mkM(m.label,m.k));
+  const sp=document.getElementById('splitseg');sp.onclick=e=>{if('s' in (e.target.dataset)){courseSplit=e.target.dataset.s==='1';
+    [...sp.children].forEach(b=>b.classList.toggle('on',b===e.target));render();}};
+  const fc=document.getElementById('faixachips');fc.innerHTML='';
+  FAIXAS.forEach(f=>{const c=document.createElement('button');c.className='chip';c.dataset.k=f.key;
+    c.innerHTML=`<span class="dot" style="background:${f.color}"></span>${f.short}`;
+    c.onclick=()=>{STATE.faixas.has(f.key)?STATE.faixas.delete(f.key):STATE.faixas.add(f.key);syncFilterUI();render();};fc.appendChild(c);});
+  const gc=document.getElementById('genchips');gc.innerHTML='';
+  GENS.forEach(g=>{const c=document.createElement('button');c.className='chip';c.dataset.k=g.key;
+    c.innerHTML=`<span class="dot" style="background:${g.color}"></span>${g.label.replace('Geração ','').replace(' / Y','')}`;
+    c.onclick=()=>{STATE.gens.has(g.key)?STATE.gens.delete(g.key):STATE.gens.add(g.key);syncFilterUI();render();};gc.appendChild(c);});
+}
+function buildCourseSel(){
+  const sel=document.getElementById('coursesel');const cur=STATE.course;
+  sel.innerHTML='<option value="">Todos os cursos</option>';
+  DB.courses.map((c,i)=>({...c,i}))
+    .filter(c=>STATE.unit==null||c.u===STATE.unit)
+    .filter(c=>DB.rows.some(r=>r.c===c.i))
+    .sort((a,b)=>a.n.localeCompare(b.n,'pt-BR'))
+    .forEach(c=>{const o=document.createElement('option');o.value=c.i;o.textContent=c.n;sel.appendChild(o);});
+  sel.value=(cur!=null&&[...sel.options].some(o=>o.value==cur))?cur:'';
+  sel.onchange=()=>{STATE.course=sel.value===''?null:+sel.value;syncFilterUI();render();};
+}
+function syncFilterUI(){
+  document.querySelectorAll('#unitseg button').forEach(b=>{const v=b.dataset.u===undefined?null:+b.dataset.u;b.classList.toggle('on',v===STATE.unit||(v===null&&STATE.unit===null&&b.textContent==='Todas'));});
+  document.querySelectorAll('#faixachips .chip').forEach(c=>{const on=STATE.faixas.has(c.dataset.k);c.classList.toggle('on',on);c.style.background=on?FMAP[c.dataset.k].color:'';});
+  document.querySelectorAll('#genchips .chip').forEach(c=>{const on=STATE.gens.has(c.dataset.k);c.classList.toggle('on',on);c.style.background=on?GMAP[c.dataset.k].color:'';});
+  document.querySelectorAll('#modseg button').forEach(b=>{const v=b.dataset.m===undefined?null:+b.dataset.m;b.classList.toggle('on',v===STATE.modalidade);});
+  const sel=document.getElementById('coursesel');sel.value=STATE.course==null?'':STATE.course;
+}
+
+/* ============ CRUMB ============ */
+function renderCrumb(){
+  const c=document.getElementById('crumb');const tags=[];
+  if(STATE.unit!=null)tags.push(['Unidade',DB.units[STATE.unit],()=>{STATE.unit=null;STATE.course=null;buildCourseSel();}]);
+  if(STATE.course!=null)tags.push(['Curso',DB.courses[STATE.course].n,()=>{STATE.course=null;}]);
+  if(STATE.modalidade!=null)tags.push(['Modalidade',MODS[STATE.modalidade].label,()=>{STATE.modalidade=null;}]);
+  STATE.faixas.forEach(k=>tags.push(['Faixa',FMAP[k].label,()=>STATE.faixas.delete(k)]));
+  STATE.gens.forEach(k=>tags.push(['Geração',GMAP[k].label,()=>STATE.gens.delete(k)]));
+  if(STATE.ageMin>0||STATE.ageMax<80)tags.push(['Idade',`${STATE.ageMin}–${STATE.ageMax>=80?'80+':STATE.ageMax}`,()=>{STATE.ageMin=0;STATE.ageMax=80;setSlider();}]);
+  if(!tags.length){c.innerHTML='<span style="color:var(--muted)">Exibindo toda a base — clique em qualquer gráfico para explorar</span>';return;}
+  c.innerHTML='<span style="color:var(--muted);font-weight:600">Filtros:</span>';
+  tags.forEach(([k,v,fn])=>{const t=document.createElement('span');t.className='tag';
+    t.innerHTML=`<span style="color:var(--muted);font-weight:500">${k}:</span> ${v} `;
+    const b=document.createElement('button');b.textContent='✕';b.onclick=()=>{fn();syncFilterUI();render();};t.appendChild(b);c.appendChild(t);});
+}
+
+/* ============ KPIs ============ */
+function renderKPI(rows){
+  const wa=withAge(rows);const ages=wa.map(r=>r.a);
+  const total=rows.length;
+  const avg=ages.length?(ages.reduce((a,b)=>a+b,0)/ages.length):0;
+  const mn=ages.length?Math.min(...ages):0, mx=ages.length?Math.max(...ages):0;
+  const fc={};wa.forEach(r=>fc[r.fx]=(fc[r.fx]||0)+1);
+  const topF=Object.entries(fc).sort((a,b)=>b[1]-a[1])[0];
+  const gcnt={};wa.forEach(r=>gcnt[r.g]=(gcnt[r.g]||0)+1);
+  const topG=Object.entries(gcnt).sort((a,b)=>b[1]-a[1])[0];
+  const niU=DB.units.indexOf('Não informado');
+  const niC=DB.courses.findIndex(c=>c.n==='Não informado');
+  const nUnits=new Set(rows.map(r=>r.u).filter(u=>u!==niU)).size;
+  const nCourses=new Set(rows.map(r=>r.c).filter(c=>c!==niC)).size;
+  const cards=[
+    {l:'Total de alunos ativos',v:total,f:`na seleção atual`,c:'var(--accent)'},
+    {l:'Idade média',v:avg,dec:1,f:`entre ${mn} e ${mx} anos`,c:'var(--f3)'},
+    {l:'Aluno mais jovem',v:mn,f:'menor idade registrada',c:'var(--f1)'},
+    {l:'Aluno mais velho',v:mx,f:'maior idade registrada',c:'var(--f7)'},
+    {l:'Faixa predominante',txt:topF?FMAP[topF[0]].label:'—',v:topF?topF[1]:0,f:topF?`<b>${pct(topF[1],wa.length).toFixed(1)}%</b> dos alunos`:'',c:topF?FMAP[topF[0]].color:'var(--muted)'},
+    {l:'Geração predominante',txt:topG?GMAP[topG[0]].label:'—',v:topG?topG[1]:0,f:topG?`<b>${pct(topG[1],wa.length).toFixed(1)}%</b> dos alunos`:'',c:topG?GMAP[topG[0]].color:'var(--muted)'},
+    {l:'Unidades de ensino',v:nUnits,f:'em análise',c:'var(--f5)'},
+    {l:'Cursos',v:nCourses,f:'em análise',c:'var(--f4)'},
+  ];
+  const g=document.getElementById('kpigrid');g.innerHTML='';
+  cards.forEach((k,i)=>{const d=document.createElement('div');d.className='kpi';d.style.setProperty('--kc',k.c);d.style.animationDelay=(i*45)+'ms';
+    if(k.txt!==undefined){d.innerHTML=`<div class="kl">${k.l}</div><div class="kv" style="font-size:20px;color:${k.c}">${k.txt}</div><div class="kf">${k.f}</div>`;}
+    else{d.innerHTML=`<div class="kl">${k.l}</div><div class="kv"><span class="num" data-to="${k.v}" data-dec="${k.dec||0}">0</span></div><div class="kf">${k.f}</div>`;}
+    g.appendChild(d);});
+  g.querySelectorAll('.num[data-to]').forEach(el=>{const to=+el.dataset.to,dec=+el.dataset.dec;
+    if(dec){const st=performance.now();const step=n=>{const p=Math.min(1,(n-st)/850);const e=1-Math.pow(1-p,3);el.textContent=(to*e).toFixed(dec).replace('.',',');if(p<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+    else animateCount(el,to);});
+}
+
+/* ============ SPECTRUM ============ */
+function renderSpectrum(rows){
+  const wa=withAge(rows);const bar=document.getElementById('specbar');const leg=document.getElementById('speclegend');
+  const counts=FAIXAS.map(f=>wa.filter(r=>r.fx===f.key).length);const tot=wa.length||1;
+  bar.innerHTML='';leg.innerHTML='';
+  FAIXAS.forEach((f,i)=>{const n=counts[i];const p=pct(n,tot);
+    const seg=document.createElement('div');seg.className='spec-seg';seg.style.background=f.color;
+    seg.style.flexGrow=Math.max(n,0.001);seg.title=`${f.label}: ${fmt(n)} (${p.toFixed(1)}%)`;
+    if(STATE.faixas.size&&!STATE.faixas.has(f.key))seg.classList.add('dim');
+    if(p>=4)seg.innerHTML=`<span class="sv">${fmt(n)}</span><span class="sp">${f.short} · ${p.toFixed(0)}%</span>`;
+    seg.onclick=()=>{STATE.faixas.has(f.key)?STATE.faixas.delete(f.key):STATE.faixas.add(f.key);syncFilterUI();render();};
+    bar.appendChild(seg);
+    const li=document.createElement('div');li.className='li';if(STATE.faixas.size&&!STATE.faixas.has(f.key))li.classList.add('dim');
+    li.innerHTML=`<span class="sw" style="background:${f.color}"></span>${f.label} · <b class="num" style="color:var(--ink)">&nbsp;${fmt(n)}</b>`;
+    li.onclick=seg.onclick;leg.appendChild(li);});
+}
+
+/* ============ CHART DEFAULTS ============ */
+function baseOpts(){
+  const ink=cssv('--ink-2'),grid=cssv('--grid'),tbg=cssv('--tooltip-bg'),tink=cssv('--tooltip-ink');
+  return {ink,grid,tbg,tink};
+}
+function tooltipCfg(pct){const{tbg,tink}=baseOpts();return{backgroundColor:tbg,titleColor:tink,bodyColor:tink,padding:11,cornerRadius:9,
+  boxPadding:5,titleFont:{family:'Space Grotesk',weight:'600',size:13},bodyFont:{family:'Inter',size:12.5},displayColors:true,usePointStyle:true};}
+
+/* ============ FAIXA CHARTS ============ */
+function renderFaixaCharts(rows){
+  const wa=withAge(rows);const{ink,grid}=baseOpts();
+  const counts=FAIXAS.map(f=>wa.filter(r=>r.fx===f.key).length);const tot=wa.length||1;
+  const labels=FAIXAS.map(f=>f.label),colors=FAIXAS.map(f=>f.color);
+  charts.faixa&&charts.faixa.destroy();
+  charts.faixa=new Chart(document.getElementById('chFaixa'),{type:'bar',
+    data:{labels,datasets:[{data:counts,backgroundColor:colors,borderRadius:7,maxBarThickness:44,
+      borderWidth:FAIXAS.map(f=>STATE.faixas.size&&!STATE.faixas.has(f.key)?0:0),
+      backgroundColor:FAIXAS.map(f=>STATE.faixas.size&&!STATE.faixas.has(f.key)?f.color+'40':f.color)}]},
+    options:{maintainAspectRatio:false,animation:{duration:750},onClick:(e,el)=>{if(el.length){const k=FAIXAS[el[0].index].key;STATE.faixas.has(k)?STATE.faixas.delete(k):STATE.faixas.add(k);syncFilterUI();render();}},
+      onHover:(e,el)=>e.native.target.style.cursor=el.length?'pointer':'default',
+      plugins:{legend:{display:false},datalabels:{anchor:'end',align:'end',color:ink,font:{family:'Space Grotesk',weight:'600',size:11.5},formatter:v=>v?fmt(v):''},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>`${fmt(c.raw)} alunos · ${pct(c.raw,tot).toFixed(1)}%`}}},
+      scales:{x:{grid:{display:false},ticks:{color:ink,font:{size:11}}},y:{grid:{color:grid},ticks:{color:ink,font:{size:11},precision:0},beginAtZero:true}}},
+    plugins:[ChartDataLabels]});
+  const pcts=counts.map(c=>+pct(c,tot).toFixed(1));
+  charts.faixaPct&&charts.faixaPct.destroy();
+  charts.faixaPct=new Chart(document.getElementById('chFaixaPct'),{type:'bar',
+    data:{labels:FAIXAS.map(f=>f.short),datasets:[{data:pcts,backgroundColor:colors,borderRadius:6,maxBarThickness:40}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,animation:{duration:750},
+      plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:ink,font:{family:'Space Grotesk',weight:'600',size:11},formatter:v=>v+'%'},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>c.raw+'% do total'}}},
+      scales:{x:{grid:{color:grid},ticks:{color:ink,callback:v=>v+'%',font:{size:11}},beginAtZero:true},y:{grid:{display:false},ticks:{color:ink,font:{size:11}}}}},
+    plugins:[ChartDataLabels]});
+}
+
+/* ============ GERAÇÃO ============ */
+function renderGen(rows){
+  const wa=withAge(rows);const{ink}=baseOpts();
+  const counts=GENS.map(g=>wa.filter(r=>r.g===g.key).length);const tot=wa.length||1;
+  charts.gen&&charts.gen.destroy();
+  charts.gen=new Chart(document.getElementById('chGen'),{type:'doughnut',
+    data:{labels:GENS.map(g=>g.label),datasets:[{data:counts,backgroundColor:GENS.map(g=>g.color),borderWidth:3,borderColor:cssv('--surface'),hoverOffset:8}]},
+    options:{maintainAspectRatio:false,cutout:'62%',animation:{animateRotate:true,duration:800},
+      onClick:(e,el)=>{if(el.length){const k=GENS[el[0].index].key;STATE.gens.has(k)?STATE.gens.delete(k):STATE.gens.add(k);syncFilterUI();render();}},
+      onHover:(e,el)=>e.native.target.style.cursor=el.length?'pointer':'default',
+      plugins:{legend:{position:'right',labels:{color:ink,font:{size:11.5,family:'Inter'},usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:12,
+        generateLabels:ch=>GENS.map((g,i)=>({text:`${g.label.replace(' / Y','')}  ${pct(counts[i],tot).toFixed(0)}%`,fillStyle:g.color,strokeStyle:g.color,index:i,
+          fontColor:STATE.gens.size&&!STATE.gens.has(g.key)?cssv('--muted'):ink}))}},
+        datalabels:{color:'#fff',font:{family:'Space Grotesk',weight:'700',size:12},formatter:(v)=>v&&pct(v,tot)>=6?fmt(v):''},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>`${fmt(c.raw)} alunos · ${pct(c.raw,tot).toFixed(1)}%`}}}},
+    plugins:[ChartDataLabels]});
+  const gl=document.getElementById('genlist');gl.innerHTML='';
+  GENS.forEach((g,i)=>{const n=counts[i];const p=pct(n,tot);
+    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--hairline)';
+    row.innerHTML=`<span style="width:12px;height:12px;border-radius:4px;background:${g.color};flex:0 0 auto"></span>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${g.label}</div><div style="font-size:11px;color:var(--muted)">${g.sub}</div></div>
+      <div style="text-align:right"><div class="num" style="font-family:Space Grotesk;font-weight:700;font-size:16px">${fmt(n)}</div><div style="font-size:11px;color:var(--muted)">${p.toFixed(1)}%</div></div>`;
+    gl.appendChild(row);});
+}
+
+/* ============ UNIT PROFILE + STACKED ============ */
+function renderUnit(){
+  const uc=document.getElementById('unitcards');uc.innerHTML='';
+  const activeUnits=DB.units.map((u,i)=>i).filter(i=>DB.rows.some(r=>r.u===i)&&DB.units[i]!=='Não informado');
+  activeUnits.forEach(ui=>{
+    const rows=withAge(DB.rows.filter(r=>r.u===ui));const all=DB.rows.filter(r=>r.u===ui);
+    const ages=rows.map(r=>r.a);const avg=ages.length?ages.reduce((a,b)=>a+b,0)/ages.length:0;
+    const fc={};rows.forEach(r=>fc[r.fx]=(fc[r.fx]||0)+1);const tf=Object.entries(fc).sort((a,b)=>b[1]-a[1])[0];
+    const gc={};rows.forEach(r=>gc[r.g]=(gc[r.g]||0)+1);const tg=Object.entries(gc).sort((a,b)=>b[1]-a[1])[0];
+    const d=document.createElement('div');d.className='uprofile';
+    d.innerHTML=`<h4><span class="udot" style="background:${ui===0?'var(--accent)':'var(--f3)'}"></span>${DB.units[ui]}</h4>
+      <div class="ustat"><span class="l">Total de alunos</span><span class="v">${fmt(all.length)}</span></div>
+      <div class="ustat"><span class="l">Idade média</span><span class="v">${avg.toFixed(1).replace('.',',')} anos</span></div>
+      <div class="ustat"><span class="l">Faixa predominante</span><span class="v" style="color:${tf?FMAP[tf[0]].color:''}">${tf?FMAP[tf[0]].label:'—'}</span></div>
+      <div class="ustat"><span class="l">Geração predominante</span><span class="v" style="color:${tg?GMAP[tg[0]].color:''}">${tg?GMAP[tg[0]].label.replace(' / Y',''):'—'}</span></div>
+      <div class="ustat"><span class="l">Modalidade</span><span class="v">${fmt(all.filter(r=>r.m===0).length)} pres. · ${fmt(all.filter(r=>r.m===1).length)} semi.</span></div>`;
+    d.style.cursor='pointer';d.onclick=()=>{STATE.unit=ui;STATE.course=null;buildCourseSel();syncFilterUI();render();document.getElementById('unit-profile').scrollIntoView({behavior:'smooth',block:'start'});};
+    uc.appendChild(d);});
+  renderUnitChart();
+}
+let unitMode='abs';
+function renderUnitChart(){
+  const{ink,grid}=baseOpts();const rows=withAge(filtered());
+  const units=DB.units.map((u,i)=>i).filter(i=>DB.rows.some(r=>r.u===i)&&DB.units[i]!=='Não informado');
+  const ds=FAIXAS.map(f=>({label:f.label,backgroundColor:f.color,borderRadius:3,
+    data:units.map(ui=>{const n=rows.filter(r=>r.u===ui&&r.fx===f.key).length;
+      if(unitMode==='pct'){const t=rows.filter(r=>r.u===ui).length||1;return +pct(n,t).toFixed(1);}return n;})}));
+  charts.unit&&charts.unit.destroy();
+  charts.unit=new Chart(document.getElementById('chUnit'),{type:'bar',
+    data:{labels:units.map(i=>DB.units[i]),datasets:ds},
+    options:{maintainAspectRatio:false,animation:{duration:750},
+      onClick:(e,el)=>{if(el.length){STATE.unit=units[el[0].index];STATE.course=null;buildCourseSel();syncFilterUI();render();}},
+      onHover:(e,el)=>e.native.target.style.cursor=el.length?'pointer':'default',
+      plugins:{legend:{position:'bottom',labels:{color:ink,usePointStyle:true,pointStyle:'rectRounded',boxWidth:10,font:{size:10.5},padding:9}},
+        datalabels:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{label:c=>`${c.dataset.label}: ${unitMode==='pct'?c.raw+'%':fmt(c.raw)+' alunos'}`}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{color:ink,font:{size:11.5,weight:'600'}}},
+        y:{stacked:true,grid:{color:grid},ticks:{color:ink,font:{size:11},callback:v=>unitMode==='pct'?v+'%':v},beginAtZero:true,max:unitMode==='pct'?100:undefined}}},
+    plugins:[ChartDataLabels]});
+}
+
+/* ============ IDADE MÉDIA POR CURSO ============ */
+function renderAvg(rows){
+  const{ink,grid}=baseOpts();const wa=withAge(rows);
+  const groups=courseGroups(wa,3).map(g=>{const ages=g.rows.map(r=>r.a);
+    return{...g,avg:ages.reduce((a,b)=>a+b,0)/ages.length,n:g.rows.length};}).sort((a,b)=>a.avg-b.avg);
+  const box=document.getElementById('avgbox');box.style.height=Math.max(260,groups.length*26+40)+'px';
+  const colorForAge=a=>{for(const f of FAIXAS)if(a>=f.lo&&a<=f.hi)return f.color;return'#888';};
+  charts.avg&&charts.avg.destroy();
+  charts.avg=new Chart(document.getElementById('chAvg'),{type:'bar',
+    data:{labels:groups.map(g=>gLabel(g,32)),datasets:[{data:groups.map(g=>+g.avg.toFixed(1)),
+      backgroundColor:groups.map(g=>colorForAge(g.avg)),borderRadius:5,maxBarThickness:22}]},
+    options:{indexAxis:'y',maintainAspectRatio:false,animation:{duration:800},
+      onClick:(e,el)=>{if(el.length){const g=groups[el[0].index];STATE.course=g.c;STATE.unit=g.u;if(courseSplit)STATE.modalidade=g.m;buildCourseSel();syncFilterUI();render();}},
+      onHover:(e,el)=>e.native.target.style.cursor=el.length?'pointer':'default',
+      plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:ink,font:{family:'Space Grotesk',weight:'600',size:11},formatter:v=>v.toFixed(1).replace('.',',')},
+        tooltip:{...tooltipCfg(),callbacks:{title:c=>groups[c[0].dataIndex].base+modSuffix(groups[c[0].dataIndex].m),label:c=>[`Idade média: ${c.raw.toFixed(1).replace('.',',')} anos`,`${fmt(groups[c.dataIndex].n)} alunos`]}}},
+      scales:{x:{grid:{color:grid},ticks:{color:ink,font:{size:11}},beginAtZero:true,title:{display:true,text:'idade média (anos)',color:ink,font:{size:10.5}}},
+        y:{grid:{display:false},ticks:{color:ink,font:{size:10.5},crossAlign:'far'}}}},
+    plugins:[ChartDataLabels]});
+}
+
+/* ============ FAIXA × CURSO ============ */
+let fcMode='abs';
+function renderFC(rows){
+  const{ink,grid}=baseOpts();const wa=withAge(rows);
+  const groups=courseGroups(wa,1).sort((a,b)=>b.rows.length-a.rows.length).slice(0,12);
+  const box=document.getElementById('fcbox');box.style.height=Math.max(280,groups.length*30+60)+'px';
+  const ds=FAIXAS.map(f=>({label:f.label,backgroundColor:f.color,borderRadius:2,
+    data:groups.map(g=>{const n=g.rows.filter(r=>r.fx===f.key).length;
+      if(fcMode==='pct'){return +pct(n,g.rows.length||1).toFixed(1);}return n;})}));
+  charts.fc&&charts.fc.destroy();
+  charts.fc=new Chart(document.getElementById('chFC'),{type:'bar',
+    data:{labels:groups.map(g=>gLabel(g,30)),datasets:ds},
+    options:{indexAxis:'y',maintainAspectRatio:false,animation:{duration:750},
+      onClick:(e,el)=>{if(el.length){const g=groups[el[0].index];STATE.course=g.c;STATE.unit=g.u;if(courseSplit)STATE.modalidade=g.m;buildCourseSel();syncFilterUI();render();}},
+      onHover:(e,el)=>e.native.target.style.cursor=el.length?'pointer':'default',
+      plugins:{legend:{position:'bottom',labels:{color:ink,usePointStyle:true,pointStyle:'rectRounded',boxWidth:10,font:{size:10},padding:8}},
+        datalabels:{display:false},
+        tooltip:{...tooltipCfg(),callbacks:{title:c=>groups[c[0].dataIndex].base+modSuffix(groups[c[0].dataIndex].m),label:c=>`${c.dataset.label}: ${fcMode==='pct'?c.raw+'%':fmt(c.raw)}`}}},
+      scales:{x:{stacked:true,grid:{color:grid},ticks:{color:ink,font:{size:11},callback:v=>fcMode==='pct'?v+'%':v},beginAtZero:true,max:fcMode==='pct'?100:undefined},
+        y:{stacked:true,grid:{display:false},ticks:{color:ink,font:{size:10}}}}},
+    plugins:[ChartDataLabels]});
+}
+
+/* ============ HEATMAP ============ */
+let heatMode='curso';
+function renderHeat(rows){
+  const wa=withAge(rows);const wrap=document.getElementById('heatmap');
+  document.getElementById('heattitle').textContent=heatMode==='curso'?'Curso × Faixa Etária':'Unidade × Faixa Etária';
+  let groups;
+  if(heatMode==='curso'){
+    groups=courseGroups(wa,1).sort((a,b)=>b.rows.length-a.rows.length).slice(0,15)
+      .map(g=>({name:g.base+modSuffix(g.m),rows:g.rows}));
+  }else{
+    groups=DB.units.map((u,i)=>i).filter(i=>DB.rows.some(r=>r.u===i)&&DB.units[i]!=='Não informado')
+      .map(i=>({name:DB.units[i],rows:wa.filter(r=>r.u===i)}));
+  }
+  const matrix=groups.map(g=>FAIXAS.map(f=>g.rows.filter(r=>r.fx===f.key).length));
+  const max=Math.max(1,...matrix.flat());
+  let html='<table class="heat"><thead><tr><th class="rowh"></th>';
+  FAIXAS.forEach(f=>html+=`<th>${f.short}</th>`);html+='<th>Total</th></tr></thead><tbody>';
+  groups.forEach((g,gi)=>{const rowTot=matrix[gi].reduce((a,b)=>a+b,0);
+    html+=`<tr><th class="rowh" title="${g.name}">${g.name.length>36?g.name.slice(0,35)+'…':g.name}</th>`;
+    matrix[gi].forEach((v,fi)=>{const t=v/max;const bg=heatColor(t);const tc=t<0.42?'var(--ink)':'#fff';
+      html+=v?`<td style="background:${bg};color:${tc}" title="${g.name} · ${FAIXAS[fi].label}: ${v} alunos">${v}</td>`:`<td class="z">·</td>`;});
+    html+=`<td style="background:var(--ink);color:var(--surface)">${fmt(rowTot)}</td></tr>`;});
+  html+='</tbody></table>';wrap.innerHTML=html;
+}
+function heatColor(t){
+  // light -> f3 teal -> f7 terracotta
+  const stops=[[231,236,243],[63,167,149],[180,70,47]];
+  let seg=t<0.5?0:1;let lt=t<0.5?t/0.5:(t-0.5)/0.5;
+  const a=stops[seg],b=stops[seg+1];
+  const c=a.map((v,i)=>Math.round(v+(b[i]-v)*lt));
+  return `rgb(${c[0]},${c[1]},${c[2]})`;
+}
+
+/* ============ RANKING ============ */
+let rankMode='young';
+function renderRank(){
+  const rows=withAge(filtered());const list=document.getElementById('ranklist');
+  let arr=courseGroups(rows,5).map(g=>{const ages=g.rows.map(r=>r.a);
+    return{c:g.c,m:g.m,u:g.u,base:g.base,n:g.rows.length,avg:ages.reduce((a,b)=>a+b,0)/ages.length,
+      p1824:pct(g.rows.filter(r=>r.fx==='18-24').length,g.rows.length),
+      p45:pct(g.rows.filter(r=>['45-54','55-64','65+'].includes(r.fx)).length,g.rows.length)};});
+  let val,unit,sortFn,label;
+  if(rankMode==='young'){sortFn=(a,b)=>a.avg-b.avg;val=x=>x.avg.toFixed(1).replace('.',',');unit='anos (média)';label='idade média';}
+  else if(rankMode==='old'){sortFn=(a,b)=>b.avg-a.avg;val=x=>x.avg.toFixed(1).replace('.',',');unit='anos (média)';label='idade média';}
+  else if(rankMode==='vol'){sortFn=(a,b)=>b.n-a.n;val=x=>fmt(x.n);unit='alunos';label='total';}
+  else if(rankMode==='j1824'){sortFn=(a,b)=>b.p1824-a.p1824;val=x=>x.p1824.toFixed(1)+'%';unit='em 18–24';label='% 18–24';}
+  else{sortFn=(a,b)=>b.p45-a.p45;val=x=>x.p45.toFixed(1)+'%';unit='com 45+';label='% 45 ou mais';}
+  arr.sort(sortFn);const top=arr.slice(0,10);
+  const maxbar=Math.max(...top.map(x=>rankMode==='vol'?x.n:rankMode==='young'||rankMode==='old'?x.avg:(rankMode==='j1824'?x.p1824:x.p45)),1);
+  list.innerHTML='';
+  top.forEach((x,i)=>{const barv=rankMode==='vol'?x.n:rankMode==='young'||rankMode==='old'?x.avg:(rankMode==='j1824'?x.p1824:x.p45);
+    const row=document.createElement('div');row.className='rankrow';row.style.cursor='pointer';
+    const nm=x.base+modSuffix(x.m);
+    row.innerHTML=`<div class="rk">${i+1}</div>
+      <div class="rn"><div class="t" title="${nm}">${nm}</div>
+        <div class="u">${DB.units[x.u]} · ${fmt(x.n)} alunos</div>
+        <div class="rbar"><i style="width:${pct(barv,maxbar)}%;background:${rankMode==='old'?'var(--f6)':rankMode==='young'?'var(--f2)':'var(--accent)'}"></i></div></div>
+      <div class="rv">${val(x)}<small>${unit}</small></div>`;
+    row.onclick=()=>{STATE.course=x.c;STATE.unit=x.u;if(courseSplit)STATE.modalidade=x.m;buildCourseSel();syncFilterUI();render();document.getElementById('overview').scrollIntoView({behavior:'smooth'});};
+    list.appendChild(row);});
+  if(!top.length)list.innerHTML='<div style="color:var(--muted);padding:20px;text-align:center">Nenhum curso com 5+ alunos na seleção atual.</div>';
+}
+
+/* ============ QUALIDADE ============ */
+function renderQuality(){
+  const q=DB.quality;const total=DB.rows.length;const valid=DB.rows.filter(r=>r.a!=null).length;
+  const missing=total-valid;const p=pct(valid,total);
+  const cards=[
+    {v:fmt(total),l:'Registros na base'},
+    {v:fmt(valid),l:'Com idade calculada'},
+    {v:fmt(q.semipresencial||0),l:'Alunos semipresenciais'},
+    {v:(q.coursesBoth||0),l:'Cursos com as 2 modalidades'},
+  ];
+  const g=document.getElementById('qgrid');g.innerHTML='';
+  cards.forEach(c=>{const d=document.createElement('div');d.className='qcard';
+    d.innerHTML=`<div class="qv">${c.v}</div><div class="ql">${c.l}</div>`;g.appendChild(d);});
+  document.getElementById('qpct').textContent=p.toFixed(1).replace('.',',')+'%';
+  document.getElementById('qbar').innerHTML=`<i style="width:${p}%;background:var(--f3)"></i><i style="width:${100-p}%;background:var(--accent)"></i>`;
+  const inc=[];
+  const bad=(q.missing||0)+(q.invalid||0);
+  if(bad)inc.push(`${bad} registro(s) com data de nascimento ausente ou inválida — tratados como “idade não informada” e excluídos das faixas`);
+  if(q.lowAge)inc.push(`${q.lowAge} registro(s) com idade implausível (abaixo de 14 anos, provável erro de digitação) — também excluídos das faixas etárias`);
+  if(q.emptyUnit)inc.push(`${q.emptyUnit} registro(s) sem unidade de ensino`);
+  if(q.emptyCourse)inc.push(`${q.emptyCourse} registro(s) sem curso`);
+  if(q.coursesBoth)inc.push(`${q.coursesBoth} curso(s) são ofertados nas modalidades presencial e semipresencial (registros em caixa-alta = semipresencial) — consolidados sob o mesmo nome, com a modalidade preservada para filtragem`);
+  document.getElementById('qnote').innerHTML=`<b>Inconsistências tratadas:</b> `+(inc.length?inc.join('; ')+'.':'nenhuma inconsistência relevante encontrada.')
+    +` A idade é calculada com data de referência <b>${DB.ref.split('-').reverse().join('/')}</b>, considerando dia e mês do aniversário.`;
+}
+
+/* ============ RENDER ALL ============ */
+function render(){
+  const rows=filtered();
+  renderCrumb();renderKPI(rows);renderSpectrum(rows);renderFaixaCharts(rows);renderGen(rows);
+  renderUnitChart();renderAvg(rows);renderFC(rows);renderHeat(rows);renderRank();
+}
+function renderStatic(){renderUnit();renderQuality();}
+
+/* ============ SLIDER ============ */
+function setSlider(){document.getElementById('rmin').value=STATE.ageMin;document.getElementById('rmax').value=STATE.ageMax;updSlider();}
+function updSlider(){
+  const mn=document.getElementById('rmin'),mx=document.getElementById('rmax');
+  let a=+mn.value,b=+mx.value;if(a>b){[a,b]=[b,a];}
+  STATE.ageMin=a;STATE.ageMax=b;
+  document.getElementById('agelbl').textContent=`${a} – ${b>=80?'80+':b}`;
+  const f=document.getElementById('rfill');f.style.left=(a/80*100)+'%';f.style.width=((b-a)/80*100)+'%';
+}
+['rmin','rmax'].forEach(id=>{const el=document.getElementById(id);
+  el.addEventListener('input',updSlider);el.addEventListener('change',()=>{render();syncFilterUI();});});
+
+/* ============ CONTROLS ============ */
+document.getElementById('clearbtn').onclick=()=>{STATE.unit=null;STATE.course=null;STATE.modalidade=null;STATE.faixas.clear();STATE.gens.clear();STATE.ageMin=0;STATE.ageMax=80;courseSplit=false;document.querySelectorAll('#splitseg button').forEach((b,i)=>b.classList.toggle('on',i===0));setSlider();buildCourseSel();syncFilterUI();render();toast('Filtros limpos');};
+document.getElementById('unitmode').onclick=e=>{if(e.target.dataset.m){unitMode=e.target.dataset.m;[...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b===e.target));renderUnitChart();}};
+document.getElementById('fcmode').onclick=e=>{if(e.target.dataset.m){fcMode=e.target.dataset.m;[...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b===e.target));renderFC(filtered());}};
+document.getElementById('heatmode').onclick=e=>{if(e.target.dataset.m){heatMode=e.target.dataset.m;[...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b===e.target));renderHeat(filtered());}};
+document.getElementById('ranktabs').onclick=e=>{if(e.target.dataset.r){rankMode=e.target.dataset.r;[...e.currentTarget.children].forEach(b=>b.classList.toggle('on',b===e.target));renderRank();}};
+
+/* ============ THEME ============ */
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('themebtn').textContent=t==='dark'?'☀️':'🌙';
+  try{localStorage.setItem('fx_theme',t);}catch(e){}}
+document.getElementById('themebtn').onclick=()=>{const cur=document.documentElement.getAttribute('data-theme');setTheme(cur==='dark'?'light':'dark');render();renderStatic();};
+(function(){let t='light';try{t=localStorage.getItem('fx_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');}catch(e){}setTheme(t);})();
+
+/* ============ EXPORT ============ */
+document.getElementById('exportbtn').onclick=e=>{e.stopPropagation();document.getElementById('exportpop').classList.toggle('open');};
+document.addEventListener('click',()=>document.getElementById('exportpop').classList.remove('open'));
+document.getElementById('exportpop').onclick=e=>{const x=e.target.closest('button')?.dataset.x;if(!x)return;
+  if(x==='csv')exportCSV();else if(x==='faixa')exportPNG(charts.faixa,'faixa-etaria');else if(x==='ger')exportPNG(charts.gen,'geracao');else if(x==='pdf')window.print();};
+function exportPNG(ch,name){if(!ch)return;const a=document.createElement('a');a.href=ch.toBase64Image('image/png',1);a.download=`unils-${name}.png`;a.click();toast('Gráfico exportado');}
+function exportCSV(){
+  const rows=withAge(filtered());const byC={};
+  rows.forEach(r=>{const k=r.c+'|'+r.fx;byC[k]=byC[k]||{c:r.c,fx:r.fx,n:0,ages:[]};byC[k].n++;byC[k].ages.push(r.a);});
+  let csv='\ufeffUnidade;Curso;Faixa Etaria;Alunos;Idade Media\n';
+  Object.values(byC).sort((a,b)=>a.c-b.c).forEach(o=>{const avg=(o.ages.reduce((a,b)=>a+b,0)/o.ages.length).toFixed(1).replace('.',',');
+    csv+=`"${DB.units[DB.courses[o.c].u]}";"${DB.courses[o.c].n}";"${FMAP[o.fx].label}";${o.n};${avg}\n`;});
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='unils-faixa-etaria-filtrado.csv';a.click();toast('CSV exportado ('+rows.length+' alunos)');}
+
+/* ============ UPLOAD (recalcula do zero) ============ */
+function norm(s){return (s||'').toString().trim().toUpperCase().replace(/^CURSO\s+/,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();}
+const MINOR=new Set(['de','da','do','das','dos','e','em','a','o']);
+function titlecase(s){return (s||'').trim().replace(/^curso\s+/i,'').replace(/\s+/g,' ').split(' ').map((w,i)=>{const l=w.toLowerCase();return(i>0&&MINOR.has(l))?l:l.charAt(0).toUpperCase()+l.slice(1);}).join(' ');}
+function isSemi(s){const t=(s||'').toString().trim();return t!==''&&t===t.toUpperCase()&&/[A-ZÀ-Ý]/.test(t);}
+function excelDate(v){if(v instanceof Date)return v;if(typeof v==='number'){const d=XLSX.SSF.parse_date_code(v);if(d)return new Date(d.y,d.m-1,d.d);}
+  if(typeof v==='string'){const m=v.trim().match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})$/);if(m){let[_,a,b,c]=m;a=+a;b=+b;c=+c;if(c<100)c+=2000;return new Date(c,b-1,a);}
+    const iso=v.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);if(iso)return new Date(+iso[1],+iso[2]-1,+iso[3]);}
+  return null;}
+function calcAge(bd,ref){let a=ref.getFullYear()-bd.getFullYear();const m=ref.getMonth()-bd.getMonth();if(m<0||(m===0&&ref.getDate()<bd.getDate()))a--;return a;}
+function processWorkbook(wb){
+  const ref=new Date(2026,7,11);const ws=wb.Sheets['Resultado Relatório']||wb.Sheets[wb.SheetNames[wb.SheetNames.length-1]];
+  const aoa=XLSX.utils.sheet_to_json(ws,{header:1,raw:true});
+  let hdr=-1;
+  for(let i=0;i<Math.min(aoa.length,30);i++){const row=(aoa[i]||[]).map(x=>norm(x));
+    if(row.some(c=>c.includes('DATA NASCIMENTO')||c.includes('NASCIMENTO'))&&row.some(c=>c.includes('CURSO'))){hdr=i;break;}}
+  if(hdr<0)throw new Error('Não encontrei o cabeçalho com Data de Nascimento / Curso.');
+  const H=(aoa[hdr]||[]).map(x=>norm(x));
+  const iDN=H.findIndex(c=>c.includes('NASCIMENTO'));
+  const iUN=H.findIndex(c=>c.includes('UNIDADE'));
+  const iCU=H.findIndex(c=>c.includes('CURSO'));
+  if(iDN<0)throw new Error('Coluna “Data Nascimento” não localizada.');
+  if(iCU<0)throw new Error('Coluna “Curso” não localizada.');
+  const units=[],unitIdx={},courses=[],courseIdx={};
+  const getUnit=u=>{const name=(u&&u.toString().trim())||'Não informado';if(!(name in unitIdx)){unitIdx[name]=units.length;units.push(name);}return unitIdx[name];};
+  const disp={};
+  const rowsRaw=[];
+  for(let i=hdr+1;i<aoa.length;i++){const row=aoa[i]||[];
+    const dnv=row[iDN],unv=iUN>=0?row[iUN]:'',cuv=row[iCU];
+    if(dnv==null&&unv==null&&cuv==null)continue;
+    if((''+(unv||'')).trim()===''&&(''+(cuv||'')).trim()===''&&dnv==null)continue;
+    rowsRaw.push({dn:dnv,un:unv,cu:cuv});}
+  // build display names per canon key (prefer non-upper, non-CURSO)
+  const variants={};rowsRaw.forEach(r=>{const cu=(r.cu||'').toString().trim();if(!cu)return;const k=norm(cu);(variants[k]=variants[k]||{})[cu]=(variants[k][cu]||0)+1;});
+  let consolidated=0;Object.entries(variants).forEach(([k,m])=>{const names=Object.entries(m).sort((a,b)=>b[1]-a[1]);if(names.length>1)consolidated+=names.length-1;
+    let chosen=names.find(([n])=>n!==n.toUpperCase()&&!n.toUpperCase().startsWith('CURSO '));disp[k]=titlecase((chosen?chosen[0]:names[0][0]));});
+  const getCourse=(uidx,cu)=>{const cuS=(cu||'').toString().trim();const name=cuS?disp[norm(cuS)]:'Não informado';const key=uidx+'|'+name;
+    if(!(key in courseIdx)){courseIdx[key]=courses.length;courses.push({n:name,u:uidx});}return courseIdx[key];};
+  const rows=[];let missing=0,invalid=0,low=0,emptyUnit=0,emptyCourse=0,nPres=0,nSemi=0;
+  rowsRaw.forEach(r=>{const uidx=getUnit(r.un);if(!(r.un&&r.un.toString().trim()))emptyUnit++;if(!(r.cu&&r.cu.toString().trim()))emptyCourse++;
+    const cidx=getCourse(uidx,r.cu);const m=isSemi(r.cu)?1:0;m?nSemi++:nPres++;
+    let age=null;const bd=excelDate(r.dn);
+    if(!bd)missing++;else{age=calcAge(bd,ref);if(age<0||age>110){invalid++;age=null;}else if(age<14){low++;age=null;}}
+    rows.push([uidx,cidx,age,m]);});
+  const valid=rows.filter(r=>r[2]!=null).length;
+  const modsPer={};rows.forEach(r=>{(modsPer[r[1]]=modsPer[r[1]]||new Set()).add(r[3]);});
+  const coursesBoth=Object.values(modsPer).filter(s=>s.size>1).length;
+  return{ref:'2026-08-11',units,courses,rows,quality:{total:rows.length,valid,missing,invalid,lowAge:low,emptyUnit,emptyCourse,rawCourseVariants:Object.keys(variants).length,consolidated,presencial:nPres,semipresencial:nSemi,coursesBoth}};
+}
+function handleFile(file){
+  const st=document.getElementById('upstatus');st.className='upstatus';st.style.display='none';
+  const rd=new FileReader();
+  rd.onload=e=>{try{const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+    const parsed=processWorkbook(wb);
+    if(!parsed.rows.length)throw new Error('Nenhum registro válido encontrado na planilha.');
+    loadBase(parsed);STATE.unit=null;STATE.course=null;STATE.faixas.clear();STATE.gens.clear();STATE.ageMin=0;STATE.ageMax=80;setSlider();
+    buildFilters();syncFilterUI();renderStatic();render();
+    const now=new Date();document.getElementById('lastupd').textContent=now.toLocaleDateString('pt-BR')+' · '+now.getHours()+'h';
+    st.className='upstatus ok';st.textContent=`✓ Base atualizada: ${fmt(parsed.rows.length)} alunos · ${fmt(parsed.quality.valid)} com idade válida · ${parsed.courses.length} cursos · ${parsed.units.filter(u=>u!=='Não informado').length} unidades.`;
+    toast('Base recalculada com sucesso');document.getElementById('overview').scrollIntoView({behavior:'smooth'});
+  }catch(err){st.className='upstatus err';st.textContent='✕ '+err.message;}};
+  rd.onerror=()=>{st.className='upstatus err';st.textContent='✕ Falha ao ler o arquivo.';};
+  rd.readAsArrayBuffer(file);
+}
+const drop=document.getElementById('drop'),fileinp=document.getElementById('fileinp');
+drop.onclick=()=>fileinp.click();
+fileinp.onchange=e=>{if(e.target.files[0])handleFile(e.target.files[0]);};
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+
+/* ============ INIT ============ */
+Chart.defaults.font.family='Inter';Chart.defaults.font.size=12;
+loadBase(BASE);buildFilters();syncFilterUI();setSlider();renderStatic();render();
+</script>
+</body>
+</html>
